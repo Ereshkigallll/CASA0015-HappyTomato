@@ -11,13 +11,19 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final double horizontalPadding = screenWidth * 0.01;
+    final double verticalPadding = screenHeight * 0.01;
+
     return MaterialApp(
-      home: Scaffold(
+      home:Scaffold(
         backgroundColor: const Color(0xFFFFF5F1),
         appBar: AppBar(
           backgroundColor: const Color(0xFFFFF5F1),
           leading: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: EdgeInsets.only(left: 2 * horizontalPadding),
             child: IconButton(
               icon: SvgPicture.asset('assets/icons/landscape.svg',
                   colorFilter: const ColorFilter.mode(
@@ -29,7 +35,7 @@ class MyApp extends StatelessWidget {
           ),
           actions: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(right: 8.0),
+              padding: EdgeInsets.only(right: 2 * horizontalPadding),
               child: IconButton(
                 icon: SvgPicture.asset('assets/icons/setting.svg',
                     colorFilter: const ColorFilter.mode(
@@ -43,9 +49,10 @@ class MyApp extends StatelessWidget {
         ),
         body: Column(
           children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 50.0),
-              child: TextWidget(text: 'HappyTomato'),
+            Padding(
+              padding: EdgeInsets.only(
+                  top: 1 * verticalPadding, bottom: 3 * verticalPadding),
+              child: const TextWidget(text: 'HappyTomato'),
             ),
             Container(
               height: 350,
@@ -53,19 +60,54 @@ class MyApp extends StatelessWidget {
               child: const TomatoClock(),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 10.0),
+              padding: EdgeInsets.only(bottom: 4 * verticalPadding),
               child: SwitchWithText(
                 initialValue: false, // 开关的初始状态
                 onChanged: (bool value) {
-                  // 这里处理开关状态改变的逻辑
                   print("Switch is: ${value ? 'ON' : 'OFF'}");
                 },
                 text: 'Emotion Analysis', // 描述性文本
               ),
             ),
+            Padding(
+              padding: EdgeInsets.only(top: 2 * verticalPadding),
+              child: StartButton(
+                text: 'START',
+                onTap: () {
+                  print('Button pressed');
+                },
+              ),
+            ),
           ],
         ),
         bottomNavigationBar: const FloatingBottomNavigationBar(),
+      ),
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // 垂直居中
+          children: <Widget>[
+            Image.asset(
+              'assets/logo.png', // 替换为您的logo文件路径
+              width: 200, // 根据需要调整尺寸
+              height: 200, // 根据需要调整尺寸
+            ),
+            Text(
+              '欢迎来到我的APP', // 您的欢迎语
+              style: TextStyle(
+                fontSize: 24, // 文字大小
+                fontWeight: FontWeight.bold, // 字体粗细
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -81,7 +123,7 @@ class TextWidget extends StatelessWidget {
     return Text(
       text,
       style: const TextStyle(
-        fontSize: 40,
+        fontSize: 30,
         color: Color(0xFF4F989E), // 指定文字颜色
         fontFamily: 'Inter-Display',
         fontWeight: FontWeight.w800,
@@ -101,7 +143,7 @@ class TomatoClock extends StatefulWidget {
 class _TomatoClockState extends State<TomatoClock> {
   double _progress = 0; // 进度，范围从0到1
   late double _startAngle; // 拖动开始时的角度
-  final double _clockSize = 300.0; // 番茄钟的大小，调整为300x300像素
+  final double _clockSize = 250.0; // 番茄钟的大小，调整为300x300像素
   int _lastVibratedMinute = -1; // 上一次震动时的分钟数
 
   @override
@@ -192,14 +234,14 @@ class ClockPainter extends CustomPainter {
     final backgroundPaint = Paint()
       ..color = Colors.grey[300]!
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 25;
+      ..strokeWidth = 20;
     canvas.drawCircle(center, radius, backgroundPaint);
 
     // 绘制进度
     final progressPaint = Paint()
       ..color = const Color.fromRGBO(191, 216, 212, 1)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 25
+      ..strokeWidth = 20
       ..strokeCap = StrokeCap.round;
     double sweepAngle = 2 * math.pi * progress;
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius),
@@ -210,7 +252,7 @@ class ClockPainter extends CustomPainter {
       ..color = const Color.fromRGBO(239, 116, 83, 1)
       ..style = PaintingStyle.fill;
     final handleAngle = 2 * math.pi * progress - (math.pi / 2);
-    const handleRadius = 20.0;
+    const handleRadius = 15.0;
     final handleCenter = Offset(math.cos(handleAngle) * radius + center.dx,
         math.sin(handleAngle) * radius + center.dy);
     canvas.drawCircle(handleCenter, handleRadius, handlePaint);
@@ -270,7 +312,10 @@ class SwitchWithText extends StatelessWidget {
           iconOn: Icons.done,
           iconOff: Icons.power_settings_new,
           animationDuration: Duration(milliseconds: 500),
-          onChanged: onChanged,
+          onChanged: (bool value) {
+            onChanged(value); // 调用外部传入的onChanged回调
+            _vibrate(); // 触发震动
+          },
           onTap: () {}, // 传递空的回调函数
           onDoubleTap: () {}, // 传递空的回调函数
           onSwipe: () {}, // 传递空的回调函数
@@ -287,6 +332,66 @@ class SwitchWithText extends StatelessWidget {
       ],
     );
   }
+
+  void _vibrate() async {
+    // 检查设备是否支持震动
+    bool canVibrate = await Vibration.hasVibrator() ?? false;
+    if (canVibrate) {
+      Vibration.vibrate(
+        pattern: [0, 50, 0, 50],
+        intensities: [0, 50, 0, 255],
+      );
+    }
+  }
+}
+
+// Start Buttom
+class StartButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+
+  const StartButton({
+    Key? key,
+    required this.text,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        onTap();
+        _vibrate(); // 触发震动
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xffEF7453), // 按钮主体颜色
+        foregroundColor: const Color(0xFFFFF5F1), // 文字颜色
+        shadowColor: Colors.black, // 阴影颜色
+        elevation: 5, // 阴影大小
+        shape: RoundedRectangleBorder(
+          // 按钮形状
+          borderRadius: BorderRadius.circular(20), // 圆角弧度
+        ),
+        minimumSize: Size(130, 50),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'Inter-Display',
+          fontSize: 20, // 文字大小
+          fontWeight: FontWeight.bold, // 文字粗细
+        ),
+      ),
+    );
+  }
+
+  void _vibrate() async {
+    // 检查设备是否支持震动
+    bool canVibrate = await Vibration.hasVibrator() ?? false;
+    if (canVibrate) {
+      Vibration.vibrate(duration: 30, amplitude: 128); // 震动50毫秒
+    }
+  }
 }
 
 // bottom navigation bar function
@@ -295,11 +400,19 @@ class FloatingBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final double horizontalPadding = screenWidth * 0.01;
+    final double verticalPadding = screenHeight * 0.01;
     return Padding(
-      padding: const EdgeInsets.all(16.0), // 创建与边缘的间隙
+      padding: EdgeInsets.only(
+          left: 4 * horizontalPadding,
+          right: 4 * horizontalPadding,
+          bottom: 4 * verticalPadding), // 创建与边缘的间隙
       child: Material(
         // 使用Material来应用阴影
-        elevation: 10.0, // 阴影
+        elevation: 5.0, // 阴影
         borderRadius: const BorderRadius.all(Radius.circular(25.0)), // 圆角
         child: Container(
           height: 70, // 设置导航栏的高度

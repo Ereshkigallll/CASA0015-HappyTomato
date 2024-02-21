@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math' as math;
 import 'package:vibration/vibration.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+import 'settings_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,33 +19,27 @@ class MyApp extends StatelessWidget {
     final double verticalPadding = screenHeight * 0.01;
 
     return MaterialApp(
-      home:Scaffold(
+      home: Scaffold(
         backgroundColor: const Color(0xFFFFF5F1),
         appBar: AppBar(
           backgroundColor: const Color(0xFFFFF5F1),
           leading: Padding(
-            padding: EdgeInsets.only(left: 2 * horizontalPadding),
+            padding: EdgeInsets.only(left: horizontalPadding),
             child: IconButton(
-              icon: SvgPicture.asset('assets/icons/landscape.svg',
-                  colorFilter: const ColorFilter.mode(
-                      Color(0xFF4F989E), BlendMode.srcIn),
-                  height: 35.0,
-                  width: 35.0),
-              onPressed: () {},
+              icon: SvgPicture.asset(
+                'assets/icons/landscape.svg',
+                colorFilter:
+                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+                height: 35.0,
+                width: 35.0,
+              ),
+              onPressed: () {
+                // Landscape icon的onPressed逻辑
+              },
             ),
           ),
           actions: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(right: 2 * horizontalPadding),
-              child: IconButton(
-                icon: SvgPicture.asset('assets/icons/setting.svg',
-                    colorFilter: const ColorFilter.mode(
-                        Color(0xFF4F989E), BlendMode.srcIn),
-                    height: 35.0,
-                    width: 35.0),
-                onPressed: () {},
-              ),
-            )
+            AppBarIcons(horizontalPadding: 2 * horizontalPadding),
           ],
         ),
         body: Column(
@@ -86,29 +81,65 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class SplashScreen extends StatelessWidget {
+class AppBarIcons extends StatelessWidget {
+  final double horizontalPadding;
+
+  const AppBarIcons({
+    Key? key,
+    required this.horizontalPadding,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // 垂直居中
-          children: <Widget>[
-            Image.asset(
-              'assets/logo.png', // 替换为您的logo文件路径
-              width: 200, // 根据需要调整尺寸
-              height: 200, // 根据需要调整尺寸
-            ),
-            Text(
-              '欢迎来到我的APP', // 您的欢迎语
-              style: TextStyle(
-                fontSize: 24, // 文字大小
-                fontWeight: FontWeight.bold, // 字体粗细
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(right: horizontalPadding),
+          child: Hero(
+            // 使用Hero小部件包裹IconButton的icon
+            tag: 'settingsIcon', // 为Hero提供一个唯一的标识符（tag）
+            flightShuttleBuilder: (
+              BuildContext flightContext,
+              Animation<double> animation,
+              HeroFlightDirection flightDirection,
+              BuildContext fromHeroContext,
+              BuildContext toHeroContext,
+            ) {
+              return SvgPicture.asset(
+                'assets/icons/setting.svg',
+                colorFilter:
+                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+              );
+            },
+            child: IconButton(
+              icon: SvgPicture.asset(
+                'assets/icons/setting.svg',
+                colorFilter:
+                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+                height: 35.0,
+                width: 35.0,
               ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        SettingsPage(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

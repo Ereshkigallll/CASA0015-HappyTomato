@@ -1,8 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingDarkPage extends StatelessWidget {
-  const SettingDarkPage({super.key});
+class SettingDarkPage extends StatefulWidget {
+  const SettingDarkPage({Key? key}) : super(key: key);
+
+  @override
+  _SettingDarkPageState createState() => _SettingDarkPageState();
+}
+
+class _SettingDarkPageState extends State<SettingDarkPage> {
+  int _selectedButtonIndex = -1;
+  static const String selectedButtonIndexKey = 'selectedButtonIndex';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedIndex();
+  }
+
+  Future<void> _loadSelectedIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedButtonIndex = prefs.getInt(selectedButtonIndexKey) ?? -1;
+    });
+  }
+
+  Future<void> _saveSelectedIndex(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(selectedButtonIndexKey, index);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,39 +41,44 @@ class SettingDarkPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFF5F1),
-      appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(), // 确保您已经有了CustomAppBar的实现
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: 7 * verticalPadding), // 仅顶部添加间隔
+          padding: EdgeInsets.only(top: 7 * verticalPadding),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // 确保竖直方向上靠上
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Center(
-                // 使用 Center 确保水平方向上居中
                 child: SvgPicture.asset(
-                  'assets/icons/settingDark.svg',
-                  colorFilter: const ColorFilter.mode(
-                      Color(0xFF4F989E), BlendMode.srcIn),
+                  'assets/icons/settingDark.svg', // 使用适用于暗黑模式设置的图标
+                  colorFilter: const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
                   width: 30.0 * horizontalPadding,
                   height: 30.0 * horizontalPadding,
                 ),
               ),
-              SizedBox(height: 8 * verticalPadding), // 图标与第一个按钮之间的间隔
-              Center(
-                // 每个按钮都使用 Center 包裹以确保水平居中
-                child: CustomButton(text: 'Follow System', onPressed: () {}),
-              ),
-              SizedBox(height: 2 * verticalPadding),
-              Center(
-                child: CustomButton(text: 'Light By Default', onPressed: () {}),
-              ),
-              SizedBox(height: 2 * verticalPadding),
-              Center(
-                child: CustomButton(text: 'Dark By Default', onPressed: () {}),
-              ),
+              SizedBox(height: 8 * verticalPadding),
+              _buildButton(0, 'Follow System'),
+              _buildButton(1, 'Light By Default'),
+              _buildButton(2, 'Dark By Default'),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildButton(int index, String text) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 2 * MediaQuery.of(context).size.width * 0.01),
+      child: CustomButton(
+        text: text,
+        isSelected: _selectedButtonIndex == index,
+        onPressed: () {
+          setState(() {
+            _selectedButtonIndex = index;
+          });
+          _saveSelectedIndex(index);
+        },
       ),
     );
   }
@@ -90,11 +122,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final bool isSelected; // 新增参数，用于控制对勾的显示
 
   const CustomButton({
     Key? key,
     required this.text,
     required this.onPressed,
+    this.isSelected = false, // 默认未选中
   }) : super(key: key);
 
   @override
@@ -106,40 +140,52 @@ class CustomButton extends StatelessWidget {
     final double verticalPadding = screenHeight * 0.01;
 
     return Container(
-      width: 90 * horizontalPadding, // 使用屏幕宽度的比例计算按钮宽度
-      height: 9 * verticalPadding, // 使用屏幕高度的比例计算按钮高度
+      width: 90 * horizontalPadding,
+      height: 9 * verticalPadding,
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25), // 阴影颜色
+            color: Colors.black.withOpacity(0.25),
             spreadRadius: 0,
             blurRadius: 2,
-            offset: const Offset(0, 2), // 阴影偏移量
+            offset: const Offset(0, 2),
           ),
         ],
-        borderRadius: BorderRadius.circular(25.0), // 统一圆角弧度
       ),
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4F989E), // 统一按钮颜色
+          backgroundColor: const Color(0xFF4F989E),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25.0), // 统一圆角弧度，确保与Container一致
+            borderRadius: BorderRadius.circular(25.0),
           ),
-          padding: EdgeInsets.symmetric(
-              horizontal: 5 * horizontalPadding), // 添加水平内边距
+          padding: EdgeInsets.symmetric(horizontal: 5 * horizontalPadding),
         ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontFamily: 'Inter-Display',
-              fontWeight: FontWeight.w800,
-              color: Color(0xFFFFF5F1), // 统一文本颜色
-              fontSize: 25, // 统一文本大小
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontFamily: 'Inter-Display',
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFFFFF5F1),
+                  fontSize: 25,
+                ),
+              ),
             ),
-          ),
+            if (isSelected) // 如果按钮被选中，显示对勾图标
+              SvgPicture.asset(
+                'assets/icons/tick.svg',
+                colorFilter: const ColorFilter.mode(
+                        Color(0xFFFFF5F1), BlendMode.srcIn),
+                width: 24.0,
+                height: 24.0,
+              ),
+          ],
         ),
       ),
     );

@@ -36,6 +36,7 @@ dependencies:
   flutter_inner_shadow: ^0.0.1
   lite_rolling_switch: ^1.0.1
   flutter_native_splash: ^2.3.11
+  shared_preferences: ^2.2.2
 
 
   # The following adds the Cupertino Icons font to your application.

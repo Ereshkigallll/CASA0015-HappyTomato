@@ -8,6 +8,11 @@ void main() => runApp(CountdownPage());
 class CountdownPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final double horizontalPadding = screenWidth * 0.01;
+    final double verticalPadding = screenHeight * 0.01;
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Color(0xFFFFF5F1), // 从图片提取的背景色
@@ -16,13 +21,13 @@ class CountdownPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center, // 在水平方向上居中对齐
             mainAxisAlignment: MainAxisAlignment.start, // 在竖直方向上靠上对齐
             children: [
-              SizedBox(height: 8), // 顶部间距
+              SizedBox(height: 20*verticalPadding), // 顶部间距
               Center(child: TimeLeftLabelWidget()), // 显示 "Time Left"
-              SizedBox(height: 8), // 添加一些间距
+              SizedBox(height: 5*verticalPadding), // 添加一些间距
               Center(child: RemainingTimeDisplayWidget()),
-              SizedBox(height: 8), // 添加一些间距
+              SizedBox(height: 7*verticalPadding), // 添加一些间距
               Center(child: AnalyzingEmotionTextWidget()),
-              SizedBox(height: 8), // 添加一些间距
+              SizedBox(height: 10*verticalPadding), // 添加一些间距
               Center(child: DestroyTomatoButton()),
               SizedBox(height: 8), // 底部间距
             ],
@@ -34,15 +39,18 @@ class CountdownPage extends StatelessWidget {
 }
 
 class TimeLeftLabelWidget extends StatelessWidget {
+  const TimeLeftLabelWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Text(
+    return const Text(
       'Time Left',
       textAlign: TextAlign.center,
       style: TextStyle(
+        fontFamily: 'Inter-Display',
         color: Color(0xFF4F989E), // 文字颜色
-        fontSize: 24, // 文字大小适当调整
-        fontWeight: FontWeight.bold, // 加粗
+        fontSize: 50, // 文字大小适当调整
+        fontWeight: FontWeight.w800 // 加粗
       ),
     );
   }
@@ -122,10 +130,11 @@ class _RemainingTimeDisplayWidgetState extends State<RemainingTimeDisplayWidget>
     return Text(
       _remainingTime,
       textAlign: TextAlign.center,
-      style: TextStyle(
+      style: const TextStyle(
+        fontFamily: 'Inter-Display',
         color: Color(0xffEF7453),
-        fontSize: 48,
-        fontWeight: FontWeight.bold,
+        fontSize: 90,
+        fontWeight: FontWeight.w800,
       ),
     );
   }
@@ -139,8 +148,10 @@ class AnalyzingEmotionTextWidget extends StatelessWidget {
       child: Text(
         'Analysing Your Emotion...',
         style: TextStyle(
+          fontFamily: 'Inter-Display',
           color: Color(0xFF4F989E), // 从图片提取的颜色
           fontSize: 24,
+          fontWeight: FontWeight.w800
         ),
       ),
     );
@@ -152,7 +163,6 @@ class DestroyTomatoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        // TODO: 实现按钮功能
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MyApp()),
@@ -160,17 +170,28 @@ class DestroyTomatoButton extends StatelessWidget {
         );
       },
       style: ElevatedButton.styleFrom(
-        primary: Color(0xffEF7453), // 从图片提取的颜色
+        backgroundColor: Color(0xffEF7453),
         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18), // 圆角按钮
+          borderRadius: BorderRadius.circular(25), // 圆角按钮
         ),
+        elevation: 5, // 设置按钮阴影的高度
+        shadowColor: Color(0xFF000000),
       ),
-      child: Text(
+      child: const Text(
         'Destroy This Tomato',
         style: TextStyle(
+          fontFamily: 'Inter-Display',
           color: Color(0xFFFFF5F1), // 从图片提取的颜色
           fontSize: 18,
+          fontWeight: FontWeight.w800,
+          shadows: [
+            Shadow( // 阴影1
+              offset: Offset(2.0, 2.0),
+              blurRadius: 5.0,
+              color: Color.fromARGB(123, 63, 60, 60),
+            ),
+          ],
         ),
       ),
     );

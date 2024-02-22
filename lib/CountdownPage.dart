@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'dart:async';
 
 void main() => runApp(CountdownPage());
 
@@ -17,7 +19,7 @@ class CountdownPage extends StatelessWidget {
               SizedBox(height: 8), // 顶部间距
               Center(child: TimeLeftLabelWidget()), // 显示 "Time Left"
               SizedBox(height: 8), // 添加一些间距
-              Center(child: RemainingTimeDisplayWidget(time: '57:48')), // 显示剩余时间，'57:48' 是示例时间
+              Center(child: RemainingTimeDisplayWidget()),
               SizedBox(height: 8), // 添加一些间距
               Center(child: AnalyzingEmotionTextWidget()),
               SizedBox(height: 8), // 添加一些间距
@@ -30,7 +32,6 @@ class CountdownPage extends StatelessWidget {
     );
   }
 }
-
 
 class TimeLeftLabelWidget extends StatelessWidget {
   @override
@@ -47,20 +48,84 @@ class TimeLeftLabelWidget extends StatelessWidget {
   }
 }
 
-class RemainingTimeDisplayWidget extends StatelessWidget {
-  final String time;
+class RemainingTimeDisplayWidget extends StatefulWidget {
+  @override
+  _RemainingTimeDisplayWidgetState createState() => _RemainingTimeDisplayWidgetState();
+}
 
-  RemainingTimeDisplayWidget({required this.time});
+class _RemainingTimeDisplayWidgetState extends State<RemainingTimeDisplayWidget> {
+  String _remainingTime = "00:00";
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLatestTime();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _fetchLatestTime() {
+  final databaseReference = FirebaseDatabase(databaseURL: "https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app").ref("countdowns");
+
+  databaseReference.limitToLast(1).onValue.listen((event) {
+    final data = event.snapshot.value as Map<dynamic, dynamic>?;
+    print("Data fetched: $data"); // 打印获取到的数据以供调试
+
+    if (data != null && data.isNotEmpty) {
+      final lastEntry = data.values.last;
+      if (lastEntry is Map<dynamic, dynamic>) {
+        final String selectedTime = lastEntry['selectedTime'];
+        print("Selected time: $selectedTime"); // 打印选中的时间以供调试
+        _startCountdown(selectedTime);
+      } else {
+        print("Last entry is not a Map: $lastEntry");
+      }
+    } else {
+      print("Data is null or empty.");
+    }
+  });
+}
+
+  void _startCountdown(String time) {
+    final int totalTime = int.parse(time.split(':')[0]) * 60 + int.parse(time.split(':')[1]);
+    int currentTime = totalTime;
+
+    setState(() {
+      _remainingTime = _formatTime(currentTime);
+    });
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (currentTime > 0) {
+        setState(() {
+          currentTime--;
+          _remainingTime = _formatTime(currentTime);
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  String _formatTime(int seconds) {
+    final int minutes = seconds ~/ 60;
+    final int remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      time,
+      _remainingTime,
       textAlign: TextAlign.center,
       style: TextStyle(
-        color: Color(0xffEF7453), // 文字颜色与 "Time Left" 保持一致
-        fontSize: 48, // 保持较大的字体大小以突出显示时间
-        fontWeight: FontWeight.bold, // 加粗
+        color: Color(0xffEF7453),
+        fontSize: 48,
+        fontWeight: FontWeight.bold,
       ),
     );
   }

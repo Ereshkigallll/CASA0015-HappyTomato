@@ -10,9 +10,16 @@ import 'package:firebase_auth/firebase_auth.dart'
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 
-void main() {
-  runApp(MyApp());
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 确保 Flutter 组件绑定已初始化
+  await Firebase.initializeApp( // 初始化 Firebase
+    options: DefaultFirebaseOptions.currentPlatform, // 使用默认 Firebase 配置
+  );
+  runApp(MyApp()); // 运行您的应用
 }
 
 class MyApp extends StatefulWidget {
@@ -422,6 +429,7 @@ class StartButton extends StatelessWidget {
 
         // 打印被选择的时间，用于调试
         print('Selected Time: $selectedTime');
+        _saveTimeToRealtimeDatabase(selectedTime);
 
         // 使用 selectedTime 参数跳转到倒计时页面
         Navigator.push(
@@ -430,21 +438,19 @@ class StartButton extends StatelessWidget {
         );
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xffEF7453), // 按钮主体颜色
-        foregroundColor: const Color(0xFFFFF5F1), // 文字颜色
-        shadowColor: Colors.black, // 阴影颜色
-        elevation: 5, // 阴影大小
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20), // 圆角弧度
-        ),
-        minimumSize: Size(130, 50), // 按钮尺寸
+        backgroundColor: const Color(0xffEF7453),
+        foregroundColor: const Color(0xFFFFF5F1),
+        shadowColor: Colors.black,
+        elevation: 5,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        minimumSize: Size(130, 50),
       ),
       child: Text(
         text,
         style: const TextStyle(
           fontFamily: 'Inter-Display',
-          fontSize: 20, // 文字大小
-          fontWeight: FontWeight.bold, // 文字粗细
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -456,6 +462,26 @@ class StartButton extends StatelessWidget {
       Vibration.vibrate(duration: 30, amplitude: 128); // 震动50毫秒
     }
   }
+
+  void _saveTimeToRealtimeDatabase(String time) {
+  // 使用提供的 URL 初始化 FirebaseDatabase 实例
+  final FirebaseDatabase database = FirebaseDatabase(
+      databaseURL: 'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
+  
+  // 获取数据库引用
+  DatabaseReference databaseReference = database.reference();
+
+  // 向 "countdowns" 路径推送新数据
+  databaseReference.child("countdowns").push().set({
+    'selectedTime': time,
+    'timestamp': DateTime.now().toIso8601String(), // 使用 ISO8601 字符串格式保存时间戳
+  }).then((_) {
+    print('Data saved successfully');
+  }).catchError((error) {
+    print('Failed to save data: $error');
+  });
+}
+
 }
 
 

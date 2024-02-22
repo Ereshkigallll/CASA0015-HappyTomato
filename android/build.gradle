@@ -7,6 +7,8 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // 添加 Google 服务插件的类路径
+        classpath 'com.google.gms:google-services:4.4.1'
     }
 }
 

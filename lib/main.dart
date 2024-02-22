@@ -13,10 +13,10 @@ import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 确保 Flutter 组件绑定已初始化
-  await Firebase.initializeApp( // 初始化 Firebase
+  await Firebase.initializeApp(
+    // 初始化 Firebase
     options: DefaultFirebaseOptions.currentPlatform, // 使用默认 Firebase 配置
   );
   runApp(MyApp()); // 运行您的应用
@@ -48,7 +48,8 @@ class _MyAppState extends State<MyApp> {
             child: IconButton(
               icon: SvgPicture.asset(
                 'assets/icons/landscape.svg',
-                colorFilter: const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+                colorFilter:
+                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
                 height: 35.0,
                 width: 35.0,
               ),
@@ -64,7 +65,8 @@ class _MyAppState extends State<MyApp> {
         body: Column(
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(top: 1 * verticalPadding, bottom: 3 * verticalPadding),
+              padding: EdgeInsets.only(
+                  top: 1 * verticalPadding, bottom: 3 * verticalPadding),
               child: const TextWidget(text: 'HappyTomato'),
             ),
             Container(
@@ -106,7 +108,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
 
 class AppBarIcons extends StatelessWidget {
   final double horizontalPadding;
@@ -464,26 +465,25 @@ class StartButton extends StatelessWidget {
   }
 
   void _saveTimeToRealtimeDatabase(String time) {
-  // 使用提供的 URL 初始化 FirebaseDatabase 实例
-  final FirebaseDatabase database = FirebaseDatabase(
-      databaseURL: 'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
-  
-  // 获取数据库引用
-  DatabaseReference databaseReference = database.reference();
+    // 使用提供的 URL 初始化 FirebaseDatabase 实例
+    final FirebaseDatabase database = FirebaseDatabase(
+        databaseURL:
+            'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
 
-  // 向 "countdowns" 路径推送新数据
-  databaseReference.child("countdowns").push().set({
-    'selectedTime': time,
-    'timestamp': DateTime.now().toIso8601String(), // 使用 ISO8601 字符串格式保存时间戳
-  }).then((_) {
-    print('Data saved successfully');
-  }).catchError((error) {
-    print('Failed to save data: $error');
-  });
+    // 获取数据库引用
+    DatabaseReference databaseReference = database.reference();
+
+    // 向 "countdowns" 路径推送新数据
+    databaseReference.child("countdowns").push().set({
+      'selectedTime': time,
+      'timestamp': DateTime.now().toIso8601String(), // 使用 ISO8601 字符串格式保存时间戳
+    }).then((_) {
+      print('Data saved successfully');
+    }).catchError((error) {
+      print('Failed to save data: $error');
+    });
+  }
 }
-
-}
-
 
 // bottom navigation bar function
 class FloatingBottomNavigationBar extends StatelessWidget {

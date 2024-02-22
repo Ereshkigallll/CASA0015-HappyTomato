@@ -4,12 +4,25 @@ import 'dart:math' as math;
 import 'package:vibration/vibration.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'settings_page.dart';
+import 'CountdownPage.dart';
+import 'package:firebase_auth/firebase_auth.dart'
+    hide EmailAuthProvider, PhoneAuthProvider;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'firebase_options.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  String _selectedTime = "00:00"; // 用于保存从 TomatoClock 选择的时间
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -28,13 +41,12 @@ class MyApp extends StatelessWidget {
             child: IconButton(
               icon: SvgPicture.asset(
                 'assets/icons/landscape.svg',
-                colorFilter:
-                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
                 height: 35.0,
                 width: 35.0,
               ),
               onPressed: () {
-                // Landscape icon的onPressed逻辑
+                // Landscape icon 的 onPressed 逻辑
               },
             ),
           ),
@@ -45,14 +57,19 @@ class MyApp extends StatelessWidget {
         body: Column(
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(
-                  top: 1 * verticalPadding, bottom: 3 * verticalPadding),
+              padding: EdgeInsets.only(top: 1 * verticalPadding, bottom: 3 * verticalPadding),
               child: const TextWidget(text: 'HappyTomato'),
             ),
             Container(
               height: 350,
               color: const Color(0xFFFFF5F1),
-              child: const TomatoClock(),
+              child: TomatoClock(
+                onTimeSelected: (String time) {
+                  setState(() {
+                    _selectedTime = time; // 更新选定的时间
+                  });
+                },
+              ),
             ),
             Padding(
               padding: EdgeInsets.only(bottom: 4 * verticalPadding),
@@ -69,8 +86,10 @@ class MyApp extends StatelessWidget {
               child: StartButton(
                 text: 'START',
                 onTap: () {
+                  // 在这里实现按钮按下后的逻辑
                   print('Button pressed');
                 },
+                selectedTime: _selectedTime, // 传递选定的时间到 StartButton
               ),
             ),
           ],
@@ -80,6 +99,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 
 class AppBarIcons extends StatelessWidget {
   final double horizontalPadding;
@@ -165,7 +185,9 @@ class TextWidget extends StatelessWidget {
 
 // Tomato Clock Function
 class TomatoClock extends StatefulWidget {
-  const TomatoClock({super.key});
+  final Function(String) onTimeSelected; // 新增一个回调函数参数
+
+  const TomatoClock({Key? key, required this.onTimeSelected}) : super(key: key);
 
   @override
   _TomatoClockState createState() => _TomatoClockState();
@@ -199,6 +221,8 @@ class _TomatoClockState extends State<TomatoClock> {
       if (_progress < 0) {
         _progress = 1.0 + _progress;
       }
+      final String formattedTime = _formatTime(_progress);
+      widget.onTimeSelected(formattedTime);
     });
 
     // 计算当前分钟数
@@ -379,11 +403,13 @@ class SwitchWithText extends StatelessWidget {
 // Start Buttom
 class StartButton extends StatelessWidget {
   final String text;
+  final String selectedTime; // 用于接收用户选择的时间
   final VoidCallback onTap;
 
   const StartButton({
     Key? key,
     required this.text,
+    required this.selectedTime, // 在构造函数中接收 selectedTime
     required this.onTap,
   }) : super(key: key);
 
@@ -393,6 +419,15 @@ class StartButton extends StatelessWidget {
       onPressed: () {
         onTap();
         _vibrate(); // 触发震动
+
+        // 打印被选择的时间，用于调试
+        print('Selected Time: $selectedTime');
+
+        // 使用 selectedTime 参数跳转到倒计时页面
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CountdownPage()), // 跳转到倒计时页面
+        );
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xffEF7453), // 按钮主体颜色
@@ -400,10 +435,9 @@ class StartButton extends StatelessWidget {
         shadowColor: Colors.black, // 阴影颜色
         elevation: 5, // 阴影大小
         shape: RoundedRectangleBorder(
-          // 按钮形状
           borderRadius: BorderRadius.circular(20), // 圆角弧度
         ),
-        minimumSize: Size(130, 50),
+        minimumSize: Size(130, 50), // 按钮尺寸
       ),
       child: Text(
         text,
@@ -417,13 +451,13 @@ class StartButton extends StatelessWidget {
   }
 
   void _vibrate() async {
-    // 检查设备是否支持震动
     bool canVibrate = await Vibration.hasVibrator() ?? false;
     if (canVibrate) {
       Vibration.vibrate(duration: 30, amplitude: 128); // 震动50毫秒
     }
   }
 }
+
 
 // bottom navigation bar function
 class FloatingBottomNavigationBar extends StatelessWidget {

@@ -8,11 +8,9 @@ void main() => runApp(CountdownPage());
 class CountdownPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
-    final double horizontalPadding = screenWidth * 0.01;
     final double verticalPadding = screenHeight * 0.01;
+    
     return MaterialApp(
       home: Scaffold(
         backgroundColor: const Color(0xFFFFF5F1), // 从图片提取的背景色

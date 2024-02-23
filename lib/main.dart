@@ -5,12 +5,8 @@ import 'package:vibration/vibration.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'settings_page.dart';
 import 'CountdownPage.dart';
-import 'package:firebase_auth/firebase_auth.dart'
-    hide EmailAuthProvider, PhoneAuthProvider;
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'firebase_options.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 Future<void> main() async {

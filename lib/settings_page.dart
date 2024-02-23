@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'SettingDarkPage.dart';
 import 'SettingEAPage.dart';
 import 'SettingDataPage.dart';
+import 'SettingHelpPage.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -65,7 +66,7 @@ class SettingsPage extends StatelessWidget {
               ),
               SizedBox(height: 2 * verticalPadding),
               Center(
-                child: CustomButton(text: 'Help', onPressed: () {}),
+                child: CustomButton(text: 'Help', onPressed: () {Navigator.of(context).push(_createRoute(SettingHelpPage()));}),
               ),
             ],
           ),

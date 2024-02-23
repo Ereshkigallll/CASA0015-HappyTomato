@@ -43,6 +43,7 @@ dependencies:
   provider: ^6.1.1
   firebase_ui_auth: ^1.13.0
   firebase_database: ^10.4.6
+  web_browser: ^0.5.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -101,6 +102,7 @@ flutter:
     - assets/icons/tick.svg
     - assets/icons/settingExpression.svg
     - assets/icons/settingData.svg
+    - assets/icons/help.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

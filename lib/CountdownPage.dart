@@ -15,21 +15,21 @@ class CountdownPage extends StatelessWidget {
     final double verticalPadding = screenHeight * 0.01;
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Color(0xFFFFF5F1), // 从图片提取的背景色
+        backgroundColor: const Color(0xFFFFF5F1), // 从图片提取的背景色
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center, // 在水平方向上居中对齐
             mainAxisAlignment: MainAxisAlignment.start, // 在竖直方向上靠上对齐
             children: [
               SizedBox(height: 20 * verticalPadding), // 顶部间距
-              Center(child: TimeLeftLabelWidget()), // 显示 "Time Left"
+              const Center(child: TimeLeftLabelWidget()), // 显示 "Time Left"
               SizedBox(height: 5 * verticalPadding), // 添加一些间距
               Center(child: RemainingTimeDisplayWidget()),
               SizedBox(height: 7 * verticalPadding), // 添加一些间距
-              Center(child: AnalyzingEmotionTextWidget()),
+              const Center(child: AnalyzingEmotionTextWidget()),
               SizedBox(height: 10 * verticalPadding), // 添加一些间距
-              Center(child: DestroyTomatoButton()),
-              SizedBox(height: 8), // 底部间距
+              const Center(child: DestroyTomatoButton()),
+              const SizedBox(height: 8), // 底部间距
             ],
           ),
         ),
@@ -57,6 +57,8 @@ class TimeLeftLabelWidget extends StatelessWidget {
 }
 
 class RemainingTimeDisplayWidget extends StatefulWidget {
+  const RemainingTimeDisplayWidget({super.key});
+
   @override
   _RemainingTimeDisplayWidgetState createState() =>
       _RemainingTimeDisplayWidgetState();
@@ -284,7 +286,7 @@ class DestroyTomatoButton extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 20.0), // 仅在左侧添加外边距
                       child: TextButton(
                         style: TextButton.styleFrom(
-                          backgroundColor: Color(0xFF4F989E),
+                          backgroundColor: const Color(0xFF4F989E),
                         ),
                         child: const Text(
                           'No',
@@ -305,7 +307,7 @@ class DestroyTomatoButton extends StatelessWidget {
                       padding: const EdgeInsets.only(right: 20.0), // 仅在右侧添加外边距
                       child: TextButton(
                         style: TextButton.styleFrom(
-                          backgroundColor: Color(0xffEF7453),
+                          backgroundColor: const Color(0xffEF7453),
                         ),
                         child: const Text(
                           'Yes',

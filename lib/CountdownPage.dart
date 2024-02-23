@@ -113,7 +113,7 @@ class _RemainingTimeDisplayWidgetState
       _remainingTime = _formatTime(currentTime);
     });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (currentTime > 0) {
         setState(() {
           currentTime--;
@@ -121,6 +121,85 @@ class _RemainingTimeDisplayWidgetState
         });
       } else {
         timer.cancel();
+        // 更新数据库
+        final FirebaseDatabase database = FirebaseDatabase(
+            databaseURL:
+                'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
+        DatabaseReference databaseReference = database.ref('countdowns');
+
+        // 查询最新的一条记录
+        DataSnapshot snapshot =
+            await databaseReference.orderByKey().limitToLast(1).get();
+
+        if (snapshot.exists) {
+          Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
+          String latestKey = data.keys.first; // 获取最新记录的键
+
+          // 更新最新记录，添加Finish数据为1
+          await databaseReference.child(latestKey).update({
+            'Finish': 1,
+          });
+
+          print('Finish data updated successfully with value 1');
+        } else {
+          print('No data found');
+        }
+        // 倒计时结束，展示弹窗
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFFFFF5F1),
+              title: const Text(
+                'Congratulations!',
+                style: TextStyle(
+                    fontFamily: 'Inter-Display',
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xffEF7453)),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min, // 使Column的大小仅包裹其子内容
+                children: <Widget>[
+                  const Text(
+                    'You got a fresh tomato!',
+                    style: TextStyle(
+                        fontFamily: 'Inter-Display',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xffEF7453)),
+                  ),
+                  const SizedBox(height: 20), // 添加一些间距
+                  Center(
+                    // 使用Center小部件使按钮居中
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Color(0xFF4F989E),
+                      ),
+                      child: const Text(
+                        'Take the Tomato',
+                        style: TextStyle(
+                          color: Color(0xFFFFF5F1),
+                          fontFamily: 'Inter-Display',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // 关闭弹窗
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyApp()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
       }
     });
   }
@@ -237,7 +316,37 @@ class DestroyTomatoButton extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
+                          // 使用提供的 URL 初始化 FirebaseDatabase 实例
+                          final FirebaseDatabase database = FirebaseDatabase(
+                              databaseURL:
+                                  'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
+
+                          // 获取数据库引用
+                          DatabaseReference databaseReference =
+                              database.ref('countdowns');
+
+                          // 查询最新的一条记录
+                          DataSnapshot snapshot = await databaseReference
+                              .orderByKey()
+                              .limitToLast(1)
+                              .get();
+
+                          if (snapshot.exists) {
+                            Map<dynamic, dynamic> data =
+                                snapshot.value as Map<dynamic, dynamic>;
+                            String latestKey = data.keys.first; // 获取最新记录的键
+
+                            // 更新最新记录，添加Finish数据
+                            await databaseReference.child(latestKey).update({
+                              'Finish': 0,
+                            });
+
+                            print('Finish data updated successfully');
+                          } else {
+                            print('No data found');
+                          }
+
                           Navigator.of(context).pop(); // 关闭弹窗
                           Navigator.pushAndRemoveUntil(
                             context,

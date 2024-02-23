@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingDarkPage extends StatefulWidget {
-  const SettingDarkPage({Key? key}) : super(key: key);
+class SettingDataPage extends StatefulWidget {
+  const SettingDataPage({Key? key}) : super(key: key);
 
   @override
-  _SettingDarkPageState createState() => _SettingDarkPageState();
+  _SettingDataPageState createState() => _SettingDataPageState();
 }
 
-class _SettingDarkPageState extends State<SettingDarkPage> {
-  int _selectedDarkIndex = -1;
-  static const String selectedButtonIndexKey = 'selectedDarkIndex';
+class _SettingDataPageState extends State<SettingDataPage> {
+  int _selectedDataIndex = -1;
+  static const String selectedButtonIndexKey = 'selectedDataIndex';
 
   @override
   void initState() {
@@ -22,7 +22,7 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
   Future<void> _loadSelectedIndex() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _selectedDarkIndex = prefs.getInt(selectedButtonIndexKey) ?? 0;
+      _selectedDataIndex = prefs.getInt(selectedButtonIndexKey) ?? 0;
     });
   }
 
@@ -50,16 +50,15 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
             children: [
               Center(
                 child: SvgPicture.asset(
-                  'assets/icons/settingDark.svg', // 使用适用于暗黑模式设置的图标
+                  'assets/icons/settingData.svg', // 使用适用于暗黑模式设置的图标
                   colorFilter: const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
                   width: 30.0 * horizontalPadding,
                   height: 30.0 * horizontalPadding,
                 ),
               ),
               SizedBox(height: 8 * verticalPadding),
-              _buildButton(0, 'Follow System'),
-              _buildButton(1, 'Light By Default'),
-              _buildButton(2, 'Dark By Default'),
+              _buildButton(0, 'Enabled By Defalut'),
+              _buildButton(1, 'Disabled By Defalut'),
             ],
           ),
         ),
@@ -72,10 +71,10 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
       padding: EdgeInsets.symmetric(vertical: 2 * MediaQuery.of(context).size.width * 0.01),
       child: CustomButton(
         text: text,
-        isSelected: _selectedDarkIndex == index,
+        isSelected: _selectedDataIndex == index,
         onPressed: () {
           setState(() {
-            _selectedDarkIndex = index;
+            _selectedDataIndex = index;
           });
           _saveSelectedIndex(index);
         },
@@ -104,7 +103,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       title: const Text(
-        'Dark Mode',
+        'Data Analysis',
         style: TextStyle(
           color: Color(0xFF4F989E), // 文本颜色
           fontFamily: 'Inter-Display', // 字体

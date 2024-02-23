@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'SettingDarkPage.dart';
+import 'SettingEAPage.dart';
+import 'SettingDataPage.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -41,17 +43,25 @@ class SettingsPage extends StatelessWidget {
                 child: CustomButton(
                     text: 'Dark Mode',
                     onPressed: () {
-                      Navigator.of(context).push(_createRoute(SettingDarkPage()));
+                      Navigator.of(context)
+                          .push(_createRoute(SettingDarkPage()));
                     }),
               ),
               SizedBox(height: 2 * verticalPadding),
               Center(
-                child:
-                    CustomButton(text: 'Expression Analysis', onPressed: () {}),
+                child: CustomButton(
+                    text: 'Expression Analysis',
+                    onPressed: () {
+                      Navigator.of(context).push(_createRoute(SettingEAPage()));
+                    }),
               ),
               SizedBox(height: 2 * verticalPadding),
               Center(
-                child: CustomButton(text: 'Data Analysis', onPressed: () {}),
+                child: CustomButton(
+                    text: 'Data Analysis',
+                    onPressed: () {
+                      Navigator.of(context).push(_createRoute(SettingDataPage()));
+                    }),
               ),
               SizedBox(height: 2 * verticalPadding),
               Center(
@@ -65,23 +75,24 @@ class SettingsPage extends StatelessWidget {
   }
 
   Route _createRoute(Widget targetPage) {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => targetPage,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(1.0, 0.0); // 新页面初始位置在屏幕右侧
-      const end = Offset.zero; // 新页面最终位置
-      const curve = Curves.ease; // 动画曲线
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => targetPage,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0); // 新页面初始位置在屏幕右侧
+        const end = Offset.zero; // 新页面最终位置
+        const curve = Curves.ease; // 动画曲线
 
-      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-      var offsetAnimation = animation.drive(tween);
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
 
-      return SlideTransition(
-        position: offsetAnimation,
-        child: child,
-      );
-    },
-  );
-}
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
 }
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

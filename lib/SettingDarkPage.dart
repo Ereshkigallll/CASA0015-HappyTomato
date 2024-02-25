@@ -53,7 +53,8 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
               Center(
                 child: SvgPicture.asset(
                   'assets/icons/settingDark.svg', // 使用适用于暗黑模式设置的图标
-                  colorFilter: const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(
+                      Color(0xFF4F989E), BlendMode.srcIn),
                   width: 30.0 * horizontalPadding,
                   height: 30.0 * horizontalPadding,
                 ),
@@ -81,24 +82,25 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
         });
         _saveSelectedIndex(index);
 
-        // 根据按钮索引设置主题模式
         ThemeMode selectedMode;
         switch (index) {
           case 0: // 跟随系统
             selectedMode = ThemeMode.system;
+            // 立即根据当前系统主题更新应用主题
+            Provider.of<ThemeNotifier>(context, listen: false).setThemeMode(selectedMode);
+            Provider.of<ThemeNotifier>(context, listen: false).applySystemTheme();
             break;
           case 1: // 亮色主题
             selectedMode = ThemeMode.light;
+            Provider.of<ThemeNotifier>(context, listen: false).setThemeMode(selectedMode);
             break;
           case 2: // 暗色主题
             selectedMode = ThemeMode.dark;
+            Provider.of<ThemeNotifier>(context, listen: false).setThemeMode(selectedMode);
             break;
           default:
             selectedMode = ThemeMode.system;
         }
-
-        // 使用Provider设置应用主题
-        Provider.of<ThemeNotifier>(context, listen: false).setThemeMode(selectedMode);
       },
     ),
   );
@@ -201,8 +203,8 @@ class CustomButton extends StatelessWidget {
             if (isSelected) // 如果按钮被选中，显示对勾图标
               SvgPicture.asset(
                 'assets/icons/tick.svg',
-                colorFilter: const ColorFilter.mode(
-                        Color(0xFFFFF5F1), BlendMode.srcIn),
+                colorFilter:
+                    const ColorFilter.mode(Color(0xFFFFF5F1), BlendMode.srcIn),
                 width: 24.0,
                 height: 24.0,
               ),

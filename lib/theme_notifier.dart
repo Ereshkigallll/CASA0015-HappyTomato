@@ -39,10 +39,17 @@ class ThemeNotifier with ChangeNotifier {
   // 新增方法来处理系统亮度变化
   void updateThemeForSystemBrightness(Brightness brightness) {
     if (_themeMode == ThemeMode.system) {
-      _themeData = brightness == Brightness.dark ? ThemeData.dark() : ThemeData.light().copyWith(
-        scaffoldBackgroundColor: const Color(0xFFFFF5F1),
-      );
+      _themeData = brightness == Brightness.dark
+          ? ThemeData.dark()
+          : ThemeData.light().copyWith(
+              scaffoldBackgroundColor: const Color(0xFFFFF5F1),
+            );
       notifyListeners();
     }
+  }
+
+  void applySystemTheme() {
+    final brightness = WidgetsBinding.instance.window.platformBrightness;
+    updateThemeForSystemBrightness(brightness);
   }
 }

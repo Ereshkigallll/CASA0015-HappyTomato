@@ -11,7 +11,8 @@ class CountdownPage extends StatefulWidget {
 }
 
 class _CountdownPageState extends State<CountdownPage> {
-  GlobalKey<_RemainingTimeDisplayWidgetState> _timerKey = GlobalKey<_RemainingTimeDisplayWidgetState>();
+  GlobalKey<_RemainingTimeDisplayWidgetState> _timerKey =
+      GlobalKey<_RemainingTimeDisplayWidgetState>();
 
   @override
   Widget build(BuildContext context) {
@@ -234,17 +235,21 @@ class _RemainingTimeDisplayWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Column( children:[Text(
-      _remainingTime,
-      textAlign: TextAlign.center,
-      style: const TextStyle(
-        fontFamily: 'Inter-Display',
-        color: Color(0xffEF7453),
-        fontSize: 90,
-        fontWeight: FontWeight.w800,
-    )),DestroyTomatoButton(
+    return Column(
+      children: [
+        Text(_remainingTime,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: 'Inter-Display',
+              color: Color(0xffEF7453),
+              fontSize: 90,
+              fontWeight: FontWeight.w800,
+            )),
+        DestroyTomatoButton(
           onDestroy: stopTimer, // 将停止计时器的方法传递给按钮
-        ),],);
+        ),
+      ],
+    );
   }
 }
 

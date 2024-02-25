@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'theme_notifier.dart';
+import 'package:provider/provider.dart';
 
 class SettingDarkPage extends StatefulWidget {
   const SettingDarkPage({Key? key}) : super(key: key);
@@ -68,20 +70,39 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
   }
 
   Widget _buildButton(int index, String text) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 2 * MediaQuery.of(context).size.width * 0.01),
-      child: CustomButton(
-        text: text,
-        isSelected: _selectedDarkIndex == index,
-        onPressed: () {
-          setState(() {
-            _selectedDarkIndex = index;
-          });
-          _saveSelectedIndex(index);
-        },
-      ),
-    );
-  }
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 2 * MediaQuery.of(context).size.width * 0.01),
+    child: CustomButton(
+      text: text,
+      isSelected: _selectedDarkIndex == index,
+      onPressed: () {
+        setState(() {
+          _selectedDarkIndex = index;
+        });
+        _saveSelectedIndex(index);
+
+        // 根据按钮索引设置主题模式
+        ThemeMode selectedMode;
+        switch (index) {
+          case 0: // 跟随系统
+            selectedMode = ThemeMode.system;
+            break;
+          case 1: // 亮色主题
+            selectedMode = ThemeMode.light;
+            break;
+          case 2: // 暗色主题
+            selectedMode = ThemeMode.dark;
+            break;
+          default:
+            selectedMode = ThemeMode.system;
+        }
+
+        // 使用Provider设置应用主题
+        Provider.of<ThemeNotifier>(context, listen: false).setThemeMode(selectedMode);
+      },
+    ),
+  );
+}
 }
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

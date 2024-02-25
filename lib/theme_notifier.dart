@@ -2,37 +2,47 @@ import 'package:flutter/material.dart';
 
 class ThemeNotifier with ChangeNotifier {
   ThemeData _themeData;
-  ThemeMode _themeMode = ThemeMode.system; // 添加一个变量来存储主题模式
+  ThemeMode _themeMode = ThemeMode.system;
 
   ThemeNotifier(this._themeData);
 
   ThemeData get themeData => _themeData;
-  ThemeMode get themeMode => _themeMode; // 允许外部获取当前主题模式
+  ThemeMode get themeMode => _themeMode;
 
   set themeData(ThemeData themeData) {
     _themeData = themeData;
     notifyListeners();
   }
 
-  // 新增方法来设置主题模式
   void setThemeMode(ThemeMode themeMode) {
     _themeMode = themeMode;
 
-    // 根据不同的主题模式设置不同的主题数据
     switch (themeMode) {
       case ThemeMode.light:
-        _themeData = ThemeData.light(); // 这里可以替换为你的自定义亮色主题
+        // 当设置为亮色主题时，明确指定scaffoldBackgroundColor为0xFFFFF5F1
+        _themeData = ThemeData.light().copyWith(
+          scaffoldBackgroundColor: const Color(0xFFFFF5F1),
+        );
         break;
       case ThemeMode.dark:
-        _themeData = ThemeData.dark(); // 这里可以替换为你的自定义暗色主题
+        // 当设置为暗色主题时，可以选择一个适合的背景颜色
+        _themeData = ThemeData.dark(); // 这里可以根据需要设置暗色主题的背景颜色
         break;
       case ThemeMode.system:
-        // 这里你可以根据系统主题来决定使用亮色还是暗色主题
-        // 例如: _themeData = MediaQuery.of(context).platformBrightness == Brightness.dark ? ThemeData.dark() : ThemeData.light();
-        // 注意: 这需要你传入BuildContext参数到这个方法或者使用其他方式来获取当前的亮度
+        // 保持当前的_themeData不变，待系统亮度变化时在外部处理
         break;
     }
 
-    notifyListeners(); // 通知监听器主题已更改
+    notifyListeners();
+  }
+
+  // 新增方法来处理系统亮度变化
+  void updateThemeForSystemBrightness(Brightness brightness) {
+    if (_themeMode == ThemeMode.system) {
+      _themeData = brightness == Brightness.dark ? ThemeData.dark() : ThemeData.light().copyWith(
+        scaffoldBackgroundColor: const Color(0xFFFFF5F1),
+      );
+      notifyListeners();
+    }
   }
 }

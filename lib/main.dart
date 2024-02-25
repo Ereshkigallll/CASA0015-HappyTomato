@@ -18,7 +18,13 @@ Future<void> main() async {
     // 初始化 Firebase
     options: DefaultFirebaseOptions.currentPlatform, // 使用默认 Firebase 配置
   );
-  runApp(MyApp()); // 运行您的应用
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeNotifier(lightTheme1), // 使用 lightTheme 作为默认主题
+      child: MyApp(), // MyApp 现在位于 Provider 下方
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -26,22 +32,43 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _selectedTime = "00:00"; // 用于保存从 TomatoClock 选择的时间
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this); // 添加观察者
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // 移除观察者
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    final themeNotifier = Provider.of<ThemeNotifier>(context, listen: false);
+    // 当 ThemeMode 为 system 时，根据系统亮度变化更新主题
+    if (themeNotifier.themeMode == ThemeMode.system) {
+      final brightness = WidgetsBinding.instance.window.platformBrightness;
+      themeNotifier.updateThemeForSystemBrightness(brightness);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     final double horizontalPadding = screenWidth * 0.01;
     final double verticalPadding = screenHeight * 0.01;
 
-    return ChangeNotifierProvider(
-      create: (_) => ThemeNotifier(lightTheme1), // 使用 lightTheme 作为默认主题
-      child: Consumer<ThemeNotifier>(
-        builder: (context, themeNotifier, _) {
           return MaterialApp(
+            theme: themeNotifier.themeData,
             home: Scaffold(
               backgroundColor: const Color(0xFFFFF5F1),
               appBar: AppBar(
@@ -74,7 +101,7 @@ class _MyAppState extends State<MyApp> {
                   ),
                   Container(
                     height: 350,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     child: TomatoClock(
                       onTimeSelected: (String time) {
                         setState(() {
@@ -107,9 +134,6 @@ class _MyAppState extends State<MyApp> {
                 ],
               ),
               bottomNavigationBar: const FloatingBottomNavigationBar(),
-            ),
-          );
-        },
       ),
     );
   }
@@ -270,7 +294,7 @@ class _TomatoClockState extends State<TomatoClock> {
   Widget build(BuildContext context) {
     final formattedTime = _formatTime(_progress);
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF5F1),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: GestureDetector(
           onPanStart: (details) => _onPanStart(details.localPosition),

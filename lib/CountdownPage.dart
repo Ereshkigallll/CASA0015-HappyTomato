@@ -5,12 +5,19 @@ import 'dart:async';
 
 void main() => runApp(CountdownPage());
 
-class CountdownPage extends StatelessWidget {
+class CountdownPage extends StatefulWidget {
+  @override
+  _CountdownPageState createState() => _CountdownPageState();
+}
+
+class _CountdownPageState extends State<CountdownPage> {
+  GlobalKey<_RemainingTimeDisplayWidgetState> _timerKey = GlobalKey<_RemainingTimeDisplayWidgetState>();
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final double verticalPadding = screenHeight * 0.01;
-    
+
     return MaterialApp(
       home: Scaffold(
         backgroundColor: const Color(0xFFFFF5F1), // 从图片提取的背景色
@@ -22,11 +29,21 @@ class CountdownPage extends StatelessWidget {
               SizedBox(height: 20 * verticalPadding), // 顶部间距
               const Center(child: TimeLeftLabelWidget()), // 显示 "Time Left"
               SizedBox(height: 5 * verticalPadding), // 添加一些间距
-              Center(child: RemainingTimeDisplayWidget()),
+              Center(
+                // 使用 GlobalKey 来获取 RemainingTimeDisplayWidget 的状态
+                child: RemainingTimeDisplayWidget(key: _timerKey),
+              ),
               SizedBox(height: 7 * verticalPadding), // 添加一些间距
               const Center(child: AnalyzingEmotionTextWidget()),
               SizedBox(height: 10 * verticalPadding), // 添加一些间距
-              const Center(child: DestroyTomatoButton()),
+              Center(
+                child: DestroyTomatoButton(
+                  onDestroy: () {
+                    // 调用 RemainingTimeDisplayWidget 中的方法来停止计时器
+                    _timerKey.currentState?.stopTimer();
+                  },
+                ),
+              ),
               const SizedBox(height: 8), // 底部间距
             ],
           ),
@@ -147,6 +164,7 @@ class _RemainingTimeDisplayWidgetState
         // 倒计时结束，展示弹窗
         showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
               backgroundColor: const Color(0xFFFFF5F1),
@@ -210,9 +228,13 @@ class _RemainingTimeDisplayWidgetState
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
+  void stopTimer() {
+    _timer?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text(
+    return Column( children:[Text(
       _remainingTime,
       textAlign: TextAlign.center,
       style: const TextStyle(
@@ -220,8 +242,9 @@ class _RemainingTimeDisplayWidgetState
         color: Color(0xffEF7453),
         fontSize: 90,
         fontWeight: FontWeight.w800,
-      ),
-    );
+    )),DestroyTomatoButton(
+          onDestroy: stopTimer, // 将停止计时器的方法传递给按钮
+        ),],);
   }
 }
 
@@ -245,7 +268,12 @@ class AnalyzingEmotionTextWidget extends StatelessWidget {
 }
 
 class DestroyTomatoButton extends StatelessWidget {
-  const DestroyTomatoButton({super.key});
+  final VoidCallback onDestroy;
+
+  const DestroyTomatoButton({
+    super.key,
+    required this.onDestroy, // 接受回调函数
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -317,6 +345,7 @@ class DestroyTomatoButton extends StatelessWidget {
                           ),
                         ),
                         onPressed: () async {
+                          onDestroy();
                           // 使用提供的 URL 初始化 FirebaseDatabase 实例
                           final FirebaseDatabase database = FirebaseDatabase(
                               databaseURL:

@@ -421,33 +421,73 @@ class StartButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        onTap();
-        _vibrate(); // 触发震动
-
-        // 打印被选择的时间，用于调试
-        print('Selected Time: $selectedTime');
-        _saveTimeToRealtimeDatabase(selectedTime);
-
-        // 使用 selectedTime 参数跳转到倒计时页面
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CountdownPage()), // 跳转到倒计时页面
-        );
+        if (selectedTime == '00:00') {
+          // 如果 selectedTime 为 0，则显示提示窗口
+          _vibrate();
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                backgroundColor: const Color(0xFFFFF5F1),
+                content: const Text(
+                  'Please Select Time',
+                  textAlign: TextAlign.center, // 文字居中
+                  style: TextStyle(
+                    color: Color(0xffEF7453), // 修改文字颜色
+                    fontFamily: 'Inter-Display', // 修改字体
+                    fontSize: 24, // 修改字体大小
+                    fontWeight: FontWeight.w800, // 修改字体粗细
+                  ),
+                ),
+                actions: <Widget>[
+                  Center(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Color(0xFF4F989E),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // 关闭提示窗口
+                      },
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(
+                          color: Color(0xFFFFF5F1), // 修改按钮中文字的颜色
+                          fontFamily: 'Inter-Display', // 修改按钮中文字的字体
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800, // 修改按钮中文字的大小
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          onTap();
+          _vibrate(); // 触发震动
+          print('Selected Time: $selectedTime');
+          _saveTimeToRealtimeDatabase(selectedTime);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CountdownPage()), // 跳转到倒计时页面
+          );
+        }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xffEF7453),
-        foregroundColor: const Color(0xFFFFF5F1),
+        backgroundColor: const Color(0xffEF7453), // 修改按钮的背景颜色
         shadowColor: Colors.black,
         elevation: 5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        minimumSize: Size(130, 50),
+        minimumSize: const Size(130, 50), // 调整按钮的大小
       ),
       child: Text(
         text,
         style: const TextStyle(
-          fontFamily: 'Inter-Display',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          fontFamily: 'Inter-Display', // 修改文字的字体
+          fontSize: 20, // 修改文字的大小
+          fontWeight: FontWeight.bold, // 修改文字的粗细
+          color: Colors.white, // 修改文字的颜色
         ),
       ),
     );
@@ -461,23 +501,20 @@ class StartButton extends StatelessWidget {
   }
 
   void _saveTimeToRealtimeDatabase(String time) {
-    // 使用提供的 URL 初始化 FirebaseDatabase 实例
-    final FirebaseDatabase database = FirebaseDatabase(
-        databaseURL:
-            'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
-
-    // 获取数据库引用
-    DatabaseReference databaseReference = database.reference();
-
-    // 向 "countdowns" 路径推送新数据
-    databaseReference.child("countdowns").push().set({
-      'selectedTime': time,
-      'timestamp': DateTime.now().toIso8601String(), // 使用 ISO8601 字符串格式保存时间戳
-    }).then((_) {
-      print('Data saved successfully');
-    }).catchError((error) {
-      print('Failed to save data: $error');
-    });
+    if (time != '0') {
+      final FirebaseDatabase database = FirebaseDatabase(
+          databaseURL:
+              'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
+      DatabaseReference databaseReference = database.reference();
+      databaseReference.child("countdowns").push().set({
+        'selectedTime': time,
+        'timestamp': DateTime.now().toIso8601String(),
+      }).then((_) {
+        print('Data saved successfully');
+      }).catchError((error) {
+        print('Failed to save data: $error');
+      });
+    }
   }
 }
 

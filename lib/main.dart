@@ -8,6 +8,9 @@ import 'CountdownPage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
+import 'theme_notifier.dart';
+import 'themes.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 确保 Flutter 组件绑定已初始化

@@ -37,72 +37,79 @@ class _MyAppState extends State<MyApp> {
     final double horizontalPadding = screenWidth * 0.01;
     final double verticalPadding = screenHeight * 0.01;
 
-    return MaterialApp(
-      home: Scaffold(
-        backgroundColor: const Color(0xFFFFF5F1),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFFFFF5F1),
-          leading: Padding(
-            padding: EdgeInsets.only(left: horizontalPadding),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/landscape.svg',
-                colorFilter:
-                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
-                height: 35.0,
-                width: 35.0,
+    return ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(lightTheme1), // 使用 lightTheme 作为默认主题
+      child: Consumer<ThemeNotifier>(
+        builder: (context, themeNotifier, _) {
+          return MaterialApp(
+            home: Scaffold(
+              backgroundColor: const Color(0xFFFFF5F1),
+              appBar: AppBar(
+                backgroundColor: const Color(0xFFFFF5F1),
+                leading: Padding(
+                  padding: EdgeInsets.only(left: horizontalPadding),
+                  child: IconButton(
+                    icon: SvgPicture.asset(
+                      'assets/icons/landscape.svg',
+                      colorFilter: const ColorFilter.mode(
+                          Color(0xFF4F989E), BlendMode.srcIn),
+                      height: 35.0,
+                      width: 35.0,
+                    ),
+                    onPressed: () {
+                      // Landscape icon 的 onPressed 逻辑
+                    },
+                  ),
+                ),
+                actions: <Widget>[
+                  AppBarIcons(horizontalPadding: 2 * horizontalPadding),
+                ],
               ),
-              onPressed: () {
-                // Landscape icon 的 onPressed 逻辑
-              },
-            ),
-          ),
-          actions: <Widget>[
-            AppBarIcons(horizontalPadding: 2 * horizontalPadding),
-          ],
-        ),
-        body: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(
-                  top: 1 * verticalPadding, bottom: 3 * verticalPadding),
-              child: const TextWidget(text: 'HappyTomato'),
-            ),
-            Container(
-              height: 350,
-              color: const Color(0xFFFFF5F1),
-              child: TomatoClock(
-                onTimeSelected: (String time) {
-                  setState(() {
-                    _selectedTime = time; // 更新选定的时间
-                  });
-                },
+              body: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: 1 * verticalPadding, bottom: 3 * verticalPadding),
+                    child: const TextWidget(text: 'HappyTomato'),
+                  ),
+                  Container(
+                    height: 350,
+                    color: Theme.of(context).primaryColor,
+                    child: TomatoClock(
+                      onTimeSelected: (String time) {
+                        setState(() {
+                          _selectedTime = time; // 更新选定的时间
+                        });
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 4 * verticalPadding),
+                    child: SwitchWithText(
+                      initialValue: false, // 开关的初始状态
+                      onChanged: (bool value) {
+                        print("Switch is: ${value ? 'ON' : 'OFF'}");
+                      },
+                      text: 'Emotion Analysis', // 描述性文本
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 2 * verticalPadding),
+                    child: StartButton(
+                      text: 'START',
+                      onTap: () {
+                        // 在这里实现按钮按下后的逻辑
+                        print('Button pressed');
+                      },
+                      selectedTime: _selectedTime, // 传递选定的时间到 StartButton
+                    ),
+                  ),
+                ],
               ),
+              bottomNavigationBar: const FloatingBottomNavigationBar(),
             ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 4 * verticalPadding),
-              child: SwitchWithText(
-                initialValue: false, // 开关的初始状态
-                onChanged: (bool value) {
-                  print("Switch is: ${value ? 'ON' : 'OFF'}");
-                },
-                text: 'Emotion Analysis', // 描述性文本
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 2 * verticalPadding),
-              child: StartButton(
-                text: 'START',
-                onTap: () {
-                  // 在这里实现按钮按下后的逻辑
-                  print('Button pressed');
-                },
-                selectedTime: _selectedTime, // 传递选定的时间到 StartButton
-              ),
-            ),
-          ],
-        ),
-        bottomNavigationBar: const FloatingBottomNavigationBar(),
+          );
+        },
       ),
     );
   }
@@ -473,7 +480,8 @@ class StartButton extends StatelessWidget {
           _saveTimeToRealtimeDatabase(selectedTime);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CountdownPage()), // 跳转到倒计时页面
+            MaterialPageRoute(
+                builder: (context) => CountdownPage()), // 跳转到倒计时页面
           );
         }
       },

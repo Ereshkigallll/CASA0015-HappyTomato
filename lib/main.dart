@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'theme_notifier.dart';
 import 'themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'historyPage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +22,8 @@ Future<void> main() async {
 
   // 加载保存的主题选择
   final prefs = await SharedPreferences.getInstance();
-  final selectedThemeIndex = prefs.getInt('selectedThemeIndex') ?? 0; // 默认使用系统主题
+  final selectedThemeIndex =
+      prefs.getInt('selectedThemeIndex') ?? 0; // 默认使用系统主题
 
   ThemeMode initialThemeMode = ThemeMode.system; // 默认为系统主题
   ThemeData initialThemeData = ThemeData.light(); // 默认主题数据
@@ -604,7 +606,29 @@ class FloatingBottomNavigationBar extends StatelessWidget {
                         Color(0xFFFFF5F1), BlendMode.srcIn),
                     height: 35.0,
                     width: 35.0),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            HistoryPage(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(-1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.ease;
+
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ));
+                },
               ),
               IconButton(
                 icon: SvgPicture.asset('assets/icons/home.svg',

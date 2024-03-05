@@ -51,16 +51,18 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _selectedTime = "00:00"; // 用于保存从 TomatoClock 选择的时间
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this); // 添加观察者
+    WidgetsBinding.instance.addObserver(this);
   }
+
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this); // 移除观察者
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -74,42 +76,26 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
 
+  Widget _getPage(int index) {
+    switch (index) {
+      case 0: 
+        return buildMainContent(); 
+      case 1:
+        return HistoryPage(); 
+      default:
+        return buildMainContent();
+    }
+  }
+
+  Widget buildMainContent() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
     final double horizontalPadding = screenWidth * 0.01;
     final double verticalPadding = screenHeight * 0.01;
 
-    return MaterialApp(
-      theme: themeNotifier.themeData,
-      home: Scaffold(
-        backgroundColor: const Color(0xFFFFF5F1),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFFFFF5F1),
-          leading: Padding(
-            padding: EdgeInsets.only(left: horizontalPadding),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/landscape.svg',
-                colorFilter:
-                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
-                height: 35.0,
-                width: 35.0,
-              ),
-              onPressed: () {
-                // Landscape icon 的 onPressed 逻辑
-              },
-            ),
-          ),
-          actions: <Widget>[
-            AppBarIcons(horizontalPadding: 2 * horizontalPadding),
-          ],
-        ),
-        body: Column(
+    // 返回现有的主页内容 Column Widget
+    return Column(
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(
@@ -149,8 +135,58 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               ),
             ),
           ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+    Widget _currentScreen = _getPage(_selectedIndex);
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final double horizontalPadding = screenWidth * 0.01;
+    final double verticalPadding = screenHeight * 0.01;
+    
+
+    return MaterialApp(
+      theme: themeNotifier.themeData,
+      home: Scaffold(
+        backgroundColor: const Color(0xFFFFF5F1),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFFFF5F1),
+          leading: Padding(
+            padding: EdgeInsets.only(left: horizontalPadding),
+            child: IconButton(
+              icon: SvgPicture.asset(
+                'assets/icons/landscape.svg',
+                colorFilter:
+                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+                height: 35.0,
+                width: 35.0,
+              ),
+              onPressed: () {
+                // Landscape icon 的 onPressed 逻辑
+              },
+            ),
+          ),
+          actions: <Widget>[
+            AppBarIcons(horizontalPadding: 2 * horizontalPadding),
+          ],
         ),
-        bottomNavigationBar: const FloatingBottomNavigationBar(),
+        body: AnimatedSwitcher(
+          duration: Duration(milliseconds: 300),
+          child: _currentScreen,
+        ),
+        bottomNavigationBar: FloatingBottomNavigationBar(
+          onNavigate: (int index) {
+            setState(() {
+              _selectedIndex = index;
+              // 更新 _currentScreen 不再需要在这里，因为它在 build 方法中根据 _selectedIndex 重新计算
+            });
+          }, // 传递 _onItemTapped 函数作为回调
+        ),
       ),
     );
   }
@@ -572,7 +608,12 @@ class StartButton extends StatelessWidget {
 
 // bottom navigation bar function
 class FloatingBottomNavigationBar extends StatelessWidget {
-  const FloatingBottomNavigationBar({super.key});
+  final Function(int) onNavigate; // 添加一个回调函数
+
+  const FloatingBottomNavigationBar({
+    super.key,
+    required this.onNavigate, // 需要一个回调函数
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -606,29 +647,7 @@ class FloatingBottomNavigationBar extends StatelessWidget {
                         Color(0xFFFFF5F1), BlendMode.srcIn),
                     height: 35.0,
                     width: 35.0),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            HistoryPage(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(-1.0, 0.0);
-                          const end = Offset.zero;
-                          const curve = Curves.ease;
-
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
-                          var offsetAnimation = animation.drive(tween);
-
-                          return SlideTransition(
-                            position: offsetAnimation,
-                            child: child,
-                          );
-                        },
-                      ));
-                },
+                onPressed: () => onNavigate(1),
               ),
               IconButton(
                 icon: SvgPicture.asset('assets/icons/home.svg',
@@ -636,7 +655,7 @@ class FloatingBottomNavigationBar extends StatelessWidget {
                         Color(0xFFFFF5F1), BlendMode.srcIn),
                     height: 35.0,
                     width: 35.0),
-                onPressed: () {},
+                onPressed: () => onNavigate(0),
               ),
               IconButton(
                 icon: SvgPicture.asset('assets/icons/trend.svg',

@@ -12,7 +12,7 @@ class SettingDarkPage extends StatefulWidget {
 }
 
 class _SettingDarkPageState extends State<SettingDarkPage> {
-  int _selectedDarkIndex = -1;
+  int _selectedDarkIndex = 1;
   static const String selectedButtonIndexKey = 'selectedDarkIndex';
 
   @override
@@ -71,40 +71,57 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
   }
 
   Widget _buildButton(int index, String text) {
-  return Padding(
-    padding: EdgeInsets.symmetric(vertical: 2 * MediaQuery.of(context).size.width * 0.01),
-    child: CustomButton(
-      text: text,
-      isSelected: _selectedDarkIndex == index,
-      onPressed: () {
-        setState(() {
-          _selectedDarkIndex = index;
-        });
-        _saveSelectedIndex(index);
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          vertical: 2 * MediaQuery.of(context).size.width * 0.01),
+      child: CustomButton(
+        text: text,
+        isSelected: _selectedDarkIndex == index,
+        onPressed: () async {
+          if (_selectedDarkIndex != index) {
+            // 只有在主题改变时才更新
+            setState(() {
+              _selectedDarkIndex = index;
+            });
+            await _saveSelectedIndex(index);
 
-        ThemeMode selectedMode;
-        switch (index) {
-          case 0: // 跟随系统
-            selectedMode = ThemeMode.system;
-            // 立即根据当前系统主题更新应用主题
-            Provider.of<ThemeNotifier>(context, listen: false).setThemeMode(selectedMode);
-            Provider.of<ThemeNotifier>(context, listen: false).applySystemTheme();
-            break;
-          case 1: // 亮色主题
-            selectedMode = ThemeMode.light;
-            Provider.of<ThemeNotifier>(context, listen: false).setThemeMode(selectedMode);
-            break;
-          case 2: // 暗色主题
-            selectedMode = ThemeMode.dark;
-            Provider.of<ThemeNotifier>(context, listen: false).setThemeMode(selectedMode);
-            break;
-          default:
-            selectedMode = ThemeMode.system;
-        }
-      },
-    ),
-  );
-}
+            ThemeMode selectedMode = _getThemeModeFromIndex(index);
+
+            final themeNotifier =
+                Provider.of<ThemeNotifier>(context, listen: false);
+            if (themeNotifier.themeMode != selectedMode) {
+              // 避免重复设置相同的主题模式
+              themeNotifier.setThemeMode(selectedMode);
+              if (selectedMode == ThemeMode.system) {
+                themeNotifier.applySystemTheme();
+              }
+
+              // 提供用户反馈
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Theme changed to $text"),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  ThemeMode _getThemeModeFromIndex(int index) {
+    switch (index) {
+      case 0:
+        return ThemeMode.system;
+      case 1:
+        return ThemeMode.light;
+      case 2:
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
 }
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

@@ -245,9 +245,7 @@ class _RemainingTimeDisplayWidgetState
               fontSize: 90,
               fontWeight: FontWeight.w800,
             )),
-        DestroyTomatoButton(
-          onDestroy: stopTimer, // 将停止计时器的方法传递给按钮
-        ),
+        
       ],
     );
   }

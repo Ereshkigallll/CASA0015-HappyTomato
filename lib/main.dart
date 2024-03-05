@@ -11,18 +11,33 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:provider/provider.dart';
 import 'theme_notifier.dart';
 import 'themes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // 确保 Flutter 组件绑定已初始化
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    // 初始化 Firebase
-    options: DefaultFirebaseOptions.currentPlatform, // 使用默认 Firebase 配置
+    options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // 加载保存的主题选择
+  final prefs = await SharedPreferences.getInstance();
+  final selectedThemeIndex = prefs.getInt('selectedThemeIndex') ?? 0; // 默认使用系统主题
+
+  ThemeMode initialThemeMode = ThemeMode.system; // 默认为系统主题
+  ThemeData initialThemeData = ThemeData.light(); // 默认主题数据
+
+  if (selectedThemeIndex == 1) {
+    initialThemeMode = ThemeMode.light;
+    initialThemeData = lightTheme1; // 你的自定义亮色主题
+  } else if (selectedThemeIndex == 2) {
+    initialThemeMode = ThemeMode.dark;
+    initialThemeData = darkTheme; // 你的自定义暗色主题
+  }
 
   runApp(
     ChangeNotifierProvider(
-      create: (context) => ThemeNotifier(lightTheme1), // 使用 lightTheme 作为默认主题
-      child: MyApp(), // MyApp 现在位于 Provider 下方
+      create: (context) => ThemeNotifier(initialThemeData, initialThemeMode),
+      child: MyApp(),
     ),
   );
 }

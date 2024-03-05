@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeNotifier with ChangeNotifier {
   ThemeData _themeData;
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode;
 
-  ThemeNotifier(this._themeData);
+  // 修改构造函数以同时接受 ThemeData 和 ThemeMode
+  ThemeNotifier(this._themeData, this._themeMode) {
+    applySystemTheme(); // 确保在构造函数中调用此方法以立即应用正确的主题
+  }
 
   ThemeData get themeData => _themeData;
   ThemeMode get themeMode => _themeMode;
@@ -14,35 +18,36 @@ class ThemeNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  void setThemeMode(ThemeMode themeMode) {
+  Future<void> setThemeMode(ThemeMode themeMode) async {
     _themeMode = themeMode;
 
+    // 根据选定的主题模式更新主题数据
     switch (themeMode) {
       case ThemeMode.light:
-        // 当设置为亮色主题时，明确指定scaffoldBackgroundColor为0xFFFFF5F1
         _themeData = ThemeData.light().copyWith(
-          scaffoldBackgroundColor: const Color(0xFFFFF5F1),
+          scaffoldBackgroundColor: const Color(0xFFFFF5F1), // 亮色主题背景色
         );
         break;
       case ThemeMode.dark:
-        // 当设置为暗色主题时，可以选择一个适合的背景颜色
-        _themeData = ThemeData.dark(); // 这里可以根据需要设置暗色主题的背景颜色
+        _themeData = ThemeData.dark(); // 暗色主题
         break;
       case ThemeMode.system:
-        // 保持当前的_themeData不变，待系统亮度变化时在外部处理
+        applySystemTheme(); // 根据系统主题应用亮色或暗色主题
         break;
     }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('themeMode', themeMode.index); // 使用枚举的 index 作为简单的存储值
 
     notifyListeners();
   }
 
-  // 新增方法来处理系统亮度变化
   void updateThemeForSystemBrightness(Brightness brightness) {
+    // 仅在系统主题模式下根据系统亮度变化更新主题
     if (_themeMode == ThemeMode.system) {
       _themeData = brightness == Brightness.dark
           ? ThemeData.dark()
           : ThemeData.light().copyWith(
-              scaffoldBackgroundColor: const Color(0xFFFFF5F1),
+              scaffoldBackgroundColor: const Color(0xFFFFF5F1), // 亮色主题背景色
             );
       notifyListeners();
     }

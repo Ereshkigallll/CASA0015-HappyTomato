@@ -13,6 +13,7 @@ import 'theme_notifier.dart';
 import 'themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'historyPage.dart';
+import 'dataPage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,7 +60,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
   }
 
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -76,13 +76,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
-
   Widget _getPage(int index) {
     switch (index) {
-      case 0: 
-        return buildMainContent(); 
+      case 0:
+        return buildMainContent();
       case 1:
-        return HistoryPage(); 
+        return HistoryPage();
+      case 2:
+        return dataPage();
       default:
         return buildMainContent();
     }
@@ -96,65 +97,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     // 返回现有的主页内容 Column Widget
     return Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(
-                  top: 1 * verticalPadding, bottom: 3 * verticalPadding),
-              child: const TextWidget(text: 'HappyTomato'),
-            ),
-            Container(
-              height: 350,
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: TomatoClock(
-                onTimeSelected: (String time) {
-                  setState(() {
-                    _selectedTime = time; // 更新选定的时间
-                  });
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 4 * verticalPadding),
-              child: SwitchWithText(
-                initialValue: false, // 开关的初始状态
-                onChanged: (bool value) {
-                  print("Switch is: ${value ? 'ON' : 'OFF'}");
-                },
-                text: 'Emotion Analysis', // 描述性文本
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 2 * verticalPadding),
-              child: StartButton(
-                text: 'START',
-                onTap: () {
-                  // 在这里实现按钮按下后的逻辑
-                  print('Button pressed');
-                },
-                selectedTime: _selectedTime, // 传递选定的时间到 StartButton
-              ),
-            ),
-          ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
-    Widget _currentScreen = _getPage(_selectedIndex);
-
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    final double horizontalPadding = screenWidth * 0.01;
-    final double verticalPadding = screenHeight * 0.01;
-    
-
-    return MaterialApp(
-      theme: themeNotifier.themeData,
-      home: Scaffold(
-        backgroundColor: const Color(0xFFFFF5F1),
-        appBar: AppBar(
+      children: <Widget>[
+        AppBar(
           backgroundColor: const Color(0xFFFFF5F1),
           leading: Padding(
             padding: EdgeInsets.only(left: horizontalPadding),
@@ -175,6 +119,62 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             AppBarIcons(horizontalPadding: 2 * horizontalPadding),
           ],
         ),
+        Padding(
+          padding: EdgeInsets.only(
+              top: 1 * verticalPadding, bottom: 3 * verticalPadding),
+          child: const TextWidget(text: 'HappyTomato'),
+        ),
+        Container(
+          height: 350,
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: TomatoClock(
+            onTimeSelected: (String time) {
+              setState(() {
+                _selectedTime = time; // 更新选定的时间
+              });
+            },
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(bottom: 4 * verticalPadding),
+          child: SwitchWithText(
+            initialValue: false, // 开关的初始状态
+            onChanged: (bool value) {
+              print("Switch is: ${value ? 'ON' : 'OFF'}");
+            },
+            text: 'Emotion Analysis', // 描述性文本
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 2 * verticalPadding),
+          child: StartButton(
+            text: 'START',
+            onTap: () {
+              // 在这里实现按钮按下后的逻辑
+              print('Button pressed');
+            },
+            selectedTime: _selectedTime, // 传递选定的时间到 StartButton
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+    Widget _currentScreen = _getPage(_selectedIndex);
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final double horizontalPadding = screenWidth * 0.01;
+    final double verticalPadding = screenHeight * 0.01;
+
+    return MaterialApp(
+      theme: themeNotifier.themeData,
+      home: Scaffold(
+        backgroundColor: const Color(0xFFFFF5F1),
         body: AnimatedSwitcher(
           duration: Duration(milliseconds: 300),
           child: _currentScreen,
@@ -663,7 +663,7 @@ class FloatingBottomNavigationBar extends StatelessWidget {
                         Color(0xFFFFF5F1), BlendMode.srcIn),
                     height: 35.0,
                     width: 35.0),
-                onPressed: () {},
+                onPressed: () => onNavigate(2),
               ),
             ],
           ),

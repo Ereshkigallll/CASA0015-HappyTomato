@@ -22,9 +22,9 @@ class HistoryPage extends StatelessWidget {
         future: databaseReference.get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('数据加载出错'));
+            return const Center(child: Text('数据加载出错'));
           } else if (snapshot.hasData && snapshot.data!.value != null) {
             Map<String, dynamic> data =
                 Map<String, dynamic>.from(snapshot.data!.value as Map);
@@ -36,7 +36,7 @@ class HistoryPage extends StatelessWidget {
                 children: [
                   Padding(
                     padding: EdgeInsets.only(top: 8 * verticalPadding, bottom: 4 * verticalPadding),
-                    child: Text(
+                    child: const Text(
                       'Tomato History',
                       style: TextStyle(
                         color: Color(0xFF4F989E), // 字体颜色
@@ -94,7 +94,7 @@ class DataCard extends StatelessWidget {
   final int minutes;
   final int happiness;
 
-  DataCard(
+  const DataCard(
       {required this.date,
       required this.time,
       required this.minutes,
@@ -121,7 +121,7 @@ class DataCard extends StatelessWidget {
               children: <Widget>[
                 Text(
                   date, // 年月日
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFFFF5F1),
                     fontSize: 16,
                     fontFamily: 'Inter-Display',
@@ -130,7 +130,7 @@ class DataCard extends StatelessWidget {
                 ),
                 Text(
                   time, // 时间
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFFFF5F1),
                     fontSize: 16,
                     fontFamily: 'Inter-Display',
@@ -139,12 +139,12 @@ class DataCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 8), // 间距
-            Divider(
+            const SizedBox(height: 8), // 间距
+            const Divider(
               color: Colors.white, // 分隔线的颜色
               thickness: 2.0, // 分隔线的粗细
             ), // 分隔符
-            SizedBox(height: 8), // 间距
+            const SizedBox(height: 8), // 间距
             Row(
               // 专注时间行
               children: <Widget>[
@@ -155,18 +155,18 @@ class DataCard extends StatelessWidget {
                   width: 24, // 图标宽度
                   height: 24, // 图标高度
                 ),
-                SizedBox(width: 20), // 图标与数值之间的距离
+                const SizedBox(width: 20), // 图标与数值之间的距离
                 Text(
                   '$minutes', // 时间数值
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFFFF5F1),
                     fontSize: 16,
                     fontFamily: 'Inter-Display',
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(width: 10), // 数值与"Minutes"之间的小间距
-                Text(
+                const SizedBox(width: 10), // 数值与"Minutes"之间的小间距
+                const Text(
                   'Minutes', // "Minutes"文字
                   style: TextStyle(
                     color: Color(0xFFFFF5F1),
@@ -177,7 +177,7 @@ class DataCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 12), // 间距
+            const SizedBox(height: 12), // 间距
             Row(
               // 幸福指数行，样式与专注时间相似
               children: <Widget>[
@@ -186,18 +186,18 @@ class DataCard extends StatelessWidget {
                   width: 24,
                   height: 24,
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 Text(
                   '$happiness',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFFFF5F1),
                     fontSize: 16,
                     fontFamily: 'Inter-Display',
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(width: 10),
-                Text(
+                const SizedBox(width: 10),
+                const Text(
                   '% Happiness',
                   style: TextStyle(
                     color: Color(0xFFFFF5F1),

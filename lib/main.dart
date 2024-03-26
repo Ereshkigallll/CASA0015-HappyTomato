@@ -172,23 +172,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     final double verticalPadding = screenHeight * 0.01;
 
     return MaterialApp(
-      theme: themeNotifier.themeData,
-      home: Scaffold(
-        backgroundColor: const Color(0xFFFFF5F1),
-        body: AnimatedSwitcher(
-          duration: Duration(milliseconds: 300),
-          child: _currentScreen,
-        ),
-        bottomNavigationBar: FloatingBottomNavigationBar(
-          onNavigate: (int index) {
-            setState(() {
-              _selectedIndex = index;
-              // 更新 _currentScreen 不再需要在这里，因为它在 build 方法中根据 _selectedIndex 重新计算
-            });
-          }, // 传递 _onItemTapped 函数作为回调
-        ),
-      ),
-    );
+        theme: themeNotifier.themeData,
+        home: Scaffold(
+          backgroundColor: const Color(0xFFFFF5F1),
+          body: AnimatedSwitcher(
+            duration: Duration(milliseconds: 300),
+            child: _currentScreen,
+          ),
+          bottomNavigationBar: Container(
+            color: Colors.transparent,
+            child: FloatingBottomNavigationBar(
+              onNavigate: (int index) {
+                setState(() {
+                  _selectedIndex = index;
+                  // 更新 _currentScreen 不再需要在这里，因为它在 build 方法中根据 _selectedIndex 重新计算
+                });
+              }, // 传递 _onItemTapped 函数作为回调
+            ),
+          ),
+        ));
   }
 }
 

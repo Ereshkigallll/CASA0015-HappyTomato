@@ -14,6 +14,7 @@ import 'themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'historyPage.dart';
 import 'dataPage.dart';
+import 'package:pytorch_mobile/pytorch_mobile.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,8 +39,14 @@ Future<void> main() async {
   }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeNotifier(initialThemeData, initialThemeMode),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (context) =>
+                ThemeNotifier(initialThemeData, initialThemeMode)),
+        ChangeNotifierProvider(
+            create: (context) => ModelProvider()), // 添加ModelProvider
+      ],
       child: MyApp(),
     ),
   );
@@ -432,8 +439,29 @@ class ClockPainter extends CustomPainter {
   }
 }
 
+class ModelProvider with ChangeNotifier {
+  dynamic emotionModel;
+  bool isModelLoaded = false;
+
+  Future<void> loadModel() async {
+    // 加载模型
+    emotionModel = await PyTorchMobile.loadModel('assets/models/model_best.pt');
+    isModelLoaded = true;
+    print('Model loaded successfully.');
+    notifyListeners(); // 通知监听器模型已加载
+  }
+
+  void unloadModel() {
+    // 释放模型资源
+    emotionModel = null;
+    isModelLoaded = false;
+    print('Model unloaded.');
+    notifyListeners(); // 通知监听器模型已卸载
+  }
+}
+
 // 自定义的开关Widget
-class SwitchWithText extends StatelessWidget {
+class SwitchWithText extends StatefulWidget {
   final bool initialValue;
   final ValueChanged<bool> onChanged;
   final String text;
@@ -446,13 +474,18 @@ class SwitchWithText extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _SwitchWithTextState createState() => _SwitchWithTextState();
+}
+
+class _SwitchWithTextState extends State<SwitchWithText> {
+  @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         LiteRollingSwitch(
           width: 100.0,
-          value: initialValue,
+          value: widget.initialValue,
           textOn: 'ON',
           textOff: 'OFF',
           colorOn: Color(0xffBFD8D4),
@@ -460,17 +493,24 @@ class SwitchWithText extends StatelessWidget {
           iconOn: Icons.done,
           iconOff: Icons.power_settings_new,
           animationDuration: Duration(milliseconds: 500),
-          onChanged: (bool value) {
-            onChanged(value); // 调用外部传入的onChanged回调
+          onChanged: (bool value) async {
+            final modelProvider =
+                Provider.of<ModelProvider>(context, listen: false);
+            if (value) {
+              await modelProvider.loadModel();
+            } else {
+              modelProvider.unloadModel();
+            }
+            widget.onChanged(value); // 调用外部传入的onChanged回调
             _vibrate(); // 触发震动
           },
-          onTap: () {}, // 传递空的回调函数
-          onDoubleTap: () {}, // 传递空的回调函数
-          onSwipe: () {}, // 传递空的回调函数
+          onTap: () {}, // 为空的回调函数
+          onDoubleTap: () {}, // 为空的回调函数
+          onSwipe: () {}, // 为空的回调函数
         ),
         SizedBox(width: 8), // 添加一些间隔
         Text(
-          text,
+          widget.text,
           style: const TextStyle(
               fontFamily: 'Inter-Display',
               fontSize: 20,
@@ -482,7 +522,6 @@ class SwitchWithText extends StatelessWidget {
   }
 
   void _vibrate() async {
-    // 检查设备是否支持震动
     bool canVibrate = await Vibration.hasVibrator() ?? false;
     if (canVibrate) {
       Vibration.vibrate(
@@ -557,11 +596,22 @@ class StartButton extends StatelessWidget {
           _vibrate(); // 触发震动
           print('Selected Time: $selectedTime');
           _saveTimeToRealtimeDatabase(selectedTime);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => CountdownPage()), // 跳转到倒计时页面
-          );
+          final modelProvider =
+              Provider.of<ModelProvider>(context, listen: false);
+
+          if (modelProvider.isModelLoaded) {
+            // 检查模型是否已加载
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CountdownPage(emotionModel: modelProvider.emotionModel),
+              ),
+            );
+          } else {
+            // 可以在这里处理模型未加载的情况，例如显示提示信息
+            print('Model is not loaded.');
+          }
         }
       },
       style: ElevatedButton.styleFrom(
@@ -577,7 +627,7 @@ class StartButton extends StatelessWidget {
           fontFamily: 'Inter-Display', // 修改文字的字体
           fontSize: 20, // 修改文字的大小
           fontWeight: FontWeight.bold, // 修改文字的粗细
-          color: Colors.white, // 修改文字的颜色
+          color: Color(0xFFFFF5F1), // 修改文字的颜色
         ),
       ),
     );

@@ -3,9 +3,13 @@ import 'main.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 
-void main() => runApp(CountdownPage());
+void main() => runApp(MaterialApp(home: CountdownPage(emotionModel: 'assets/models/model_best.pt')));
 
 class CountdownPage extends StatefulWidget {
+  final dynamic emotionModel; // 添加字段来接收传递的模型
+
+  // 修改构造函数以接收模型
+  CountdownPage({Key? key, required this.emotionModel}) : super(key: key);
   @override
   _CountdownPageState createState() => _CountdownPageState();
 }

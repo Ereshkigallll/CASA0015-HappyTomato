@@ -46,7 +46,7 @@ Future<void> main() async {
                 ThemeNotifier(initialThemeData, initialThemeMode)),
         ChangeNotifierProvider(
             create: (context) => ModelProvider()), // 添加ModelProvider
-        ChangeNotifierProvider(create: (context) => CountdownProvider()),
+        ChangeNotifierProvider(create: (context) => CameraStateProvider()),
       ],
       child: MyApp(),
     ),
@@ -198,6 +198,22 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ],
           ),
         ));
+  }
+}
+
+class CameraStateProvider with ChangeNotifier {
+  bool _isCameraEnabled = false;
+
+  bool get isCameraEnabled => _isCameraEnabled;
+
+  void enableCamera() {
+    _isCameraEnabled = true;
+    notifyListeners();
+  }
+
+  void disableCamera() {
+    _isCameraEnabled = false;
+    notifyListeners();
   }
 }
 
@@ -496,9 +512,13 @@ class _SwitchWithTextState extends State<SwitchWithText> {
           onChanged: (bool value) async {
             final modelProvider =
                 Provider.of<ModelProvider>(context, listen: false);
+            final cameraStateProvider =
+                Provider.of<CameraStateProvider>(context, listen: false);
             if (value) {
+              cameraStateProvider.enableCamera();
               await modelProvider.loadModel();
             } else {
+              cameraStateProvider.disableCamera();
               modelProvider.unloadModel();
             }
             widget.onChanged(value); // 调用外部传入的onChanged回调

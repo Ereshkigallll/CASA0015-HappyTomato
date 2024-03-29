@@ -46,6 +46,7 @@ Future<void> main() async {
                 ThemeNotifier(initialThemeData, initialThemeMode)),
         ChangeNotifierProvider(
             create: (context) => ModelProvider()), // 添加ModelProvider
+        ChangeNotifierProvider(create: (context) => CountdownProvider()),
       ],
       child: MyApp(),
     ),
@@ -123,12 +124,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ),
           ),
           actions: <Widget>[
-            AppBarIcons(horizontalPadding: 2 * horizontalPadding),
+            AppBarIcons(horizontalPadding: 1 * horizontalPadding),
           ],
         ),
         Padding(
-          padding: EdgeInsets.only(
-              top: 1 * verticalPadding, bottom: 3 * verticalPadding),
+          padding: EdgeInsets.only(bottom: 1.5 * verticalPadding),
           child: const TextWidget(text: 'HappyTomato'),
         ),
         Container(
@@ -143,7 +143,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(bottom: 4 * verticalPadding),
+          padding: EdgeInsets.only(
+              top: 2 * verticalPadding, bottom: 4 * verticalPadding),
           child: SwitchWithText(
             initialValue: false, // 开关的初始状态
             onChanged: (bool value) {
@@ -172,30 +173,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
     Widget _currentScreen = _getPage(_selectedIndex);
 
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    final double horizontalPadding = screenWidth * 0.01;
-    final double verticalPadding = screenHeight * 0.01;
-
     return MaterialApp(
         theme: themeNotifier.themeData,
         home: Scaffold(
           backgroundColor: const Color(0xFFFFF5F1),
-          body: AnimatedSwitcher(
-            duration: Duration(milliseconds: 300),
-            child: _currentScreen,
-          ),
-          bottomNavigationBar: Container(
-            color: Colors.transparent,
-            child: FloatingBottomNavigationBar(
-              onNavigate: (int index) {
-                setState(() {
-                  _selectedIndex = index;
-                  // 更新 _currentScreen 不再需要在这里，因为它在 build 方法中根据 _selectedIndex 重新计算
-                });
-              }, // 传递 _onItemTapped 函数作为回调
-            ),
+          body: Stack(
+            children: <Widget>[
+              AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child: _currentScreen,
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: FloatingBottomNavigationBar(
+                  onNavigate: (int index) {
+                    setState(() {
+                      _selectedIndex = index;
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
         ));
   }
@@ -599,19 +599,13 @@ class StartButton extends StatelessWidget {
           final modelProvider =
               Provider.of<ModelProvider>(context, listen: false);
 
-          if (modelProvider.isModelLoaded) {
-            // 检查模型是否已加载
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CountdownPage(emotionModel: modelProvider.emotionModel),
-              ),
-            );
-          } else {
-            // 可以在这里处理模型未加载的情况，例如显示提示信息
-            print('Model is not loaded.');
-          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CountdownPage(emotionModel: modelProvider.emotionModel),
+            ),
+          );
         }
       },
       style: ElevatedButton.styleFrom(

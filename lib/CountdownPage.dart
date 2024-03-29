@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:camera/camera.dart';
 
-void main() => runApp(MaterialApp(home: CountdownPage(emotionModel: 'assets/models/model_best.pt')));
+void main() => runApp(MaterialApp(
+    home: CountdownPage(emotionModel: 'assets/models/model_best.pt')));
 
 class CountdownPage extends StatefulWidget {
   final dynamic emotionModel; // 添加字段来接收传递的模型
@@ -15,8 +18,103 @@ class CountdownPage extends StatefulWidget {
 }
 
 class _CountdownPageState extends State<CountdownPage> {
+  CameraController? _controller;
+  Future<void>? _initializeControllerFuture;
   GlobalKey<_RemainingTimeDisplayWidgetState> _timerKey =
       GlobalKey<_RemainingTimeDisplayWidgetState>();
+  bool _cameraPermissionGranted = false;
+
+  @override
+void initState() {
+  super.initState();
+  _requestAndInitializeCamera();  // 确保请求权限和初始化摄像头
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) {
+      _showCameraPreviewDialog();
+    }
+  });
+}
+
+  Future<void> _requestAndInitializeCamera() async {
+    // 请求摄像头权限
+    var cameraStatus = await Permission.camera.status;
+    if (!cameraStatus.isGranted) {
+      cameraStatus = await Permission.camera.request();
+    }
+
+    // 检查权限是否被授予
+    if (cameraStatus.isGranted) {
+      _cameraPermissionGranted = true; // 更新权限状态
+
+      // 获取可用的摄像头列表
+      final cameras = await availableCameras();
+
+      // 获取前置摄像头
+      final firstCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front,
+      );
+
+      // 创建摄像头控制器
+      _controller = CameraController(
+        firstCamera,
+        ResolutionPreset.medium,
+      );
+
+      // 初始化控制器并存储初始化控制器的Future
+      setState(() {
+        _initializeControllerFuture = _controller!.initialize();
+      });
+    } else {
+      // 权限未被授予，更新权限状态
+      _cameraPermissionGranted = false;
+    }
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    final firstCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front);
+    _controller = CameraController(firstCamera, ResolutionPreset.medium);
+    _initializeControllerFuture = _controller!.initialize();
+  }
+
+  void _showCameraPreviewDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: FutureBuilder<void>(
+            future: _initializeControllerFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return AspectRatio(
+                  aspectRatio: _controller!.value.aspectRatio,
+                  child: CameraPreview(_controller!),
+                );
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Confirm'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _timerKey.currentState?.startCountdown(); // 使用键来触发倒计时开始
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,36 +123,50 @@ class _CountdownPageState extends State<CountdownPage> {
 
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: const Color(0xFFFFF5F1), // 从图片提取的背景色
+        backgroundColor: const Color(0xFFFFF5F1),
         body: SafeArea(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center, // 在水平方向上居中对齐
-            mainAxisAlignment: MainAxisAlignment.start, // 在竖直方向上靠上对齐
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: 20 * verticalPadding), // 顶部间距
-              const Center(child: TimeLeftLabelWidget()), // 显示 "Time Left"
-              SizedBox(height: 5 * verticalPadding), // 添加一些间距
+              SizedBox(height: 20 * verticalPadding),
+              const Center(child: TimeLeftLabelWidget()),
+              SizedBox(height: 5 * verticalPadding),
               Center(
-                // 使用 GlobalKey 来获取 RemainingTimeDisplayWidget 的状态
                 child: RemainingTimeDisplayWidget(key: _timerKey),
               ),
-              SizedBox(height: 7 * verticalPadding), // 添加一些间距
+              SizedBox(height: 7 * verticalPadding),
               const Center(child: AnalyzingEmotionTextWidget()),
-              SizedBox(height: 10 * verticalPadding), // 添加一些间距
+              SizedBox(height: 10 * verticalPadding),
               Center(
                 child: DestroyTomatoButton(
                   onDestroy: () {
-                    // 调用 RemainingTimeDisplayWidget 中的方法来停止计时器
                     _timerKey.currentState?.stopTimer();
                   },
                 ),
               ),
-              const SizedBox(height: 8), // 底部间距
+              const SizedBox(height: 8),
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+class CountdownProvider with ChangeNotifier {
+  bool _countdownStarted = false;
+
+  bool get countdownStarted => _countdownStarted;
+
+  void startCountdown() {
+    _countdownStarted = true;
+    notifyListeners();
+  }
+
+  void resetCountdown() {
+    _countdownStarted = false;
+    notifyListeners();
   }
 }
 
@@ -88,17 +200,62 @@ class _RemainingTimeDisplayWidgetState
     extends State<RemainingTimeDisplayWidget> {
   String _remainingTime = "00:00";
   Timer? _timer;
+  CameraController? _controller;
+  Future<void>? _initializeControllerFuture;
+  bool _cameraPermissionGranted = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchLatestTime();
+    _requestAndInitializeCamera();
+    // _fetchLatestTime();  // 移除自动开始倒计时的调用
+  }
+
+  Future<void> _requestAndInitializeCamera() async {
+    // 请求摄像头权限
+    var cameraStatus = await Permission.camera.status;
+    if (!cameraStatus.isGranted) {
+      cameraStatus = await Permission.camera.request();
+    }
+
+    // 检查权限是否被授予
+    if (cameraStatus.isGranted) {
+      _cameraPermissionGranted = true; // 更新权限状态
+
+      // 获取可用的摄像头列表
+      final cameras = await availableCameras();
+
+      // 获取前置摄像头
+      final firstCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front,
+      );
+
+      // 创建摄像头控制器
+      _controller = CameraController(
+        firstCamera,
+        ResolutionPreset.medium,
+      );
+
+      // 初始化控制器并存储初始化控制器的Future
+      setState(() {
+        _initializeControllerFuture = _controller!.initialize();
+      });
+    } else {
+      // 权限未被授予，更新权限状态
+      _cameraPermissionGranted = false;
+    }
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _controller?.dispose(); // 确保释放摄像头资源
     super.dispose();
+  }
+
+  // 将开始倒计时的逻辑提取到一个单独的方法中
+  void startCountdown() {
+    _fetchLatestTime(); // 现在这个方法将由外部事件（如用户点击弹窗中的确认按钮）触发
   }
 
   void _fetchLatestTime() {
@@ -241,15 +398,16 @@ class _RemainingTimeDisplayWidgetState
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(_remainingTime,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: 'Inter-Display',
-              color: Color(0xffEF7453),
-              fontSize: 90,
-              fontWeight: FontWeight.w800,
-            )),
-        
+        Text(
+          _remainingTime,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontFamily: 'Inter-Display',
+            color: Color(0xffEF7453),
+            fontSize: 90,
+            fontWeight: FontWeight.w800,
+          ),
+        ), // 添加一些空间
       ],
     );
   }

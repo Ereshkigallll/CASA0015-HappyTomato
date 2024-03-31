@@ -5,6 +5,14 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:image/image.dart' as img;
+import 'dart:math';
+import 'package:pytorch_mobile/pytorch_mobile.dart';
 
 void main() => runApp(MaterialApp(
     home: CountdownPage(emotionModel: 'assets/models/model_best.pt')));
@@ -21,30 +29,37 @@ class CountdownPage extends StatefulWidget {
 class _CountdownPageState extends State<CountdownPage> {
   CameraController? _controller;
   Future<void>? _initializeControllerFuture;
-  GlobalKey<_RemainingTimeDisplayWidgetState> _timerKey = GlobalKey<_RemainingTimeDisplayWidgetState>();
+  GlobalKey<_RemainingTimeDisplayWidgetState> _timerKey =
+      GlobalKey<_RemainingTimeDisplayWidgetState>();
   bool _isCountdownActive = false;
+  var _model;
 
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  final cameraStateProvider = Provider.of<CameraStateProvider>(context, listen: false);
+    final cameraStateProvider =
+        Provider.of<CameraStateProvider>(context, listen: false);
 
-  // 只有当表情分析功能启用时，才初始化摄像头并显示弹窗
-  if (cameraStateProvider.isCameraEnabled) {
-    _requestAndInitializeCamera().then((_) {
-      if (mounted) {
-        _showCameraPreviewDialog();
-      }
-    });
-  } else {
-    // 表情分析功能关闭时，直接激活倒计时
-    setState(() {
-      _isCountdownActive = true;
-    });
+    // 只有当表情分析功能启用时，才初始化摄像头并显示弹窗
+    if (cameraStateProvider.isCameraEnabled) {
+      _requestAndInitializeCamera().then((_) {
+        if (mounted) {
+          _showCameraPreviewDialog();
+        }
+      });
+    } else {
+      // 表情分析功能关闭时，直接激活倒计时
+      setState(() {
+        _isCountdownActive = true;
+      });
+    }
+    _loadModel();
   }
-}
 
+  void _loadModel() async {
+    _model = await PyTorchMobile.loadModel('assets/models/model_best.pt');
+  }
 
   Future<void> _requestAndInitializeCamera() async {
     // 请求摄像头权限
@@ -57,7 +72,8 @@ void initState() {
       // 获取可用的摄像头列表
       final cameras = await availableCameras();
       // 获取前置摄像头
-      final firstCamera = cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.front);
+      final firstCamera = cameras.firstWhere(
+          (camera) => camera.lensDirection == CameraLensDirection.front);
       // 创建摄像头控制器
       _controller = CameraController(firstCamera, ResolutionPreset.medium);
       // 初始化控制器
@@ -80,7 +96,8 @@ void initState() {
             content: FutureBuilder<void>(
               future: _initializeControllerFuture,
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done && _controller?.value.isInitialized == true) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    _controller?.value.isInitialized == true) {
                   return AspectRatio(
                     aspectRatio: 1 / _controller!.value.aspectRatio,
                     child: CameraPreview(_controller!),
@@ -131,8 +148,12 @@ void initState() {
               SizedBox(height: 5 * verticalPadding), // 添加一些间距
               if (_isCountdownActive) // 根据_isCountdownActive的值来决定是否显示倒计时组件
                 Center(
-                  // 使用 GlobalKey 来获取 RemainingTimeDisplayWidget 的状态
-                  child: RemainingTimeDisplayWidget(key: _timerKey),
+                  // 使用 GlobalKey 来获取 RemainingTimeDisplayWidget 的状态，并传递 CameraController
+                  child: RemainingTimeDisplayWidget(
+                    key: _timerKey,
+                    cameraController: _controller, // 传递 CameraController
+                    model: _model,
+                  ),
                 ),
               SizedBox(height: 7 * verticalPadding), // 添加一些间距
               const Center(child: AnalyzingEmotionTextWidget()),
@@ -173,7 +194,14 @@ class TimeLeftLabelWidget extends StatelessWidget {
 }
 
 class RemainingTimeDisplayWidget extends StatefulWidget {
-  const RemainingTimeDisplayWidget({super.key});
+  final dynamic model; // 添加模型参数
+  final CameraController? cameraController;
+
+  const RemainingTimeDisplayWidget({
+    Key? key,
+    this.cameraController,
+    this.model, // 初始化模型参数
+  }) : super(key: key);
 
   @override
   _RemainingTimeDisplayWidgetState createState() =>
@@ -182,6 +210,7 @@ class RemainingTimeDisplayWidget extends StatefulWidget {
 
 class _RemainingTimeDisplayWidgetState
     extends State<RemainingTimeDisplayWidget> {
+  bool _isControllerDisposed = false;
   String _remainingTime = "00:00";
   Timer? _timer;
 
@@ -194,6 +223,9 @@ class _RemainingTimeDisplayWidgetState
   @override
   void dispose() {
     _timer?.cancel();
+    _photoTimer?.cancel();
+    _isControllerDisposed = true; // 添加这一行
+
     super.dispose();
   }
 
@@ -221,6 +253,8 @@ class _RemainingTimeDisplayWidgetState
       }
     });
   }
+
+  Timer? _photoTimer; // 用于拍照操作的计时器
 
   void _startCountdown(String time) {
     final int totalTime =
@@ -321,6 +355,72 @@ class _RemainingTimeDisplayWidgetState
         );
       }
     });
+    // 如果提供了摄像头控制器，则每10秒拍摄一次
+    if (widget.cameraController != null) {
+      _photoTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+        // 检查 CameraController 是否已经被销毁
+        if (!_isControllerDisposed &&
+            widget.cameraController != null &&
+            widget.cameraController!.value.isInitialized) {
+          try {
+            final image = await widget.cameraController!.takePicture();
+            _saveImageToGallery(File(image.path));
+          } catch (e) {
+            print("拍摄出错：$e");
+          }
+        }
+      });
+    }
+  }
+
+  Future<void> _saveImageToGallery(File imageFile) async {
+    // 读取图片文件为 Image 对象
+    img.Image? originalImage = img.decodeImage(imageFile.readAsBytesSync());
+    if (originalImage != null) {
+      // 逆时针旋转 90 度
+      // 逆时针旋转 90 度
+      img.Image rotatedImage = img.copyRotate(originalImage, angle: 0);
+
+      // 计算裁剪尺寸和开始点，以实现中心裁剪为 1:1 长宽比
+      int size = min(rotatedImage.width, rotatedImage.height);
+      int startX = (rotatedImage.width - size) ~/ 2;
+      int startY = (rotatedImage.height - size) ~/ 2;
+
+      // 中心裁剪为 1:1 长宽比
+      img.Image croppedImage = img.copyCrop(rotatedImage,
+          x: startX, y: startY, width: size, height: size);
+
+      img.Image resizedImage =
+          img.copyResize(croppedImage, width: 48, height: 48);
+
+      // 将裁剪后的图像编码为 JPG
+      Uint8List jpg = img.encodeJpg(resizedImage);
+
+      // 保存到图库
+      final mean = [0.485, 0.456, 0.406];
+      final std = [0.229, 0.224, 0.225];
+      if (widget.model != null) {
+        // 将处理后的图像数据写入临时文件
+        final tempDir = await getTemporaryDirectory();
+        File tempImageFile = File('${tempDir.path}/temp_image.jpg')
+          ..writeAsBytesSync(jpg);
+
+        // 使用模型对处理后的图片进行情感识别
+        String prediction = await widget.model.getImagePrediction(
+            tempImageFile, // 处理后的图片文件
+            48,
+            48, // 目标宽度和高度
+            "assets/labels/labels.csv",
+            mean: mean,
+            std: std // 标签文件路径
+            );
+
+        print(prediction);
+
+        // 删除临时文件
+        await tempImageFile.delete();
+      }
+    }
   }
 
   String _formatTime(int seconds) {

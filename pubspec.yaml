@@ -48,6 +48,9 @@ dependencies:
   pytorch_mobile: ^0.2.2
   camera: ^0.10.5+9
   permission_handler: ^11.3.1
+  path_provider: ^2.1.2
+  image_gallery_saver: ^2.0.3
+  image: ^4.1.7
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -110,6 +113,7 @@ flutter:
     - assets/icons/duration.svg
     - assets/icons/superHappy.svg
     - assets/models/model_best.pt
+    - assets/labels/labels.csv
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

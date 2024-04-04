@@ -14,7 +14,7 @@ import 'themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'historyPage.dart';
 import 'dataPage.dart';
-import 'package:pytorch_mobile/pytorch_mobile.dart';
+import 'package:flutter_pytorch/flutter_pytorch.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -461,7 +461,12 @@ class ModelProvider with ChangeNotifier {
 
   Future<void> loadModel() async {
     // 加载模型
-    emotionModel = await PyTorchMobile.loadModel('assets/models/model_best.pt');
+    emotionModel = await FlutterPytorch.loadClassificationModel(
+    "assets/models/model_best.pt",
+    48, // 模型预期的输入图像的宽度
+    48, // 模型预期的输入图像的高度
+    labelPath: "assets/labels/labels.txt" // 如果您的模型需要标签文件，提供标签文件的路径
+  );
     isModelLoaded = true;
     print('Model loaded successfully.');
     notifyListeners(); // 通知监听器模型已加载

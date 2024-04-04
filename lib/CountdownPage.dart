@@ -12,7 +12,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'dart:math';
-import 'package:pytorch_mobile/pytorch_mobile.dart';
+import 'package:flutter_pytorch/flutter_pytorch.dart';
 
 void main() => runApp(MaterialApp(
     home: CountdownPage(emotionModel: 'assets/models/model_best.pt')));
@@ -58,7 +58,12 @@ class _CountdownPageState extends State<CountdownPage> {
   }
 
   void _loadModel() async {
-    _model = await PyTorchMobile.loadModel('assets/models/model_best.pt');
+    _model = await FlutterPytorch.loadClassificationModel(
+        "assets/models/model_best.pt",
+        48, // 宽度，根据您的模型实际输入尺寸调整
+        48, // 高度，根据您的模型实际输入尺寸调整
+        labelPath: "assets/labels/labels.txt" // 指向您的标签文件的路径，如果模型需要
+        );
   }
 
   Future<void> _requestAndInitializeCamera() async {
@@ -194,7 +199,7 @@ class TimeLeftLabelWidget extends StatelessWidget {
 }
 
 class RemainingTimeDisplayWidget extends StatefulWidget {
-  final dynamic model; // 添加模型参数
+  final ClassificationModel? model; // 添加模型参数
   final CameraController? cameraController;
 
   const RemainingTimeDisplayWidget({
@@ -213,6 +218,8 @@ class _RemainingTimeDisplayWidgetState
   bool _isControllerDisposed = false;
   String _remainingTime = "00:00";
   Timer? _timer;
+  int _totalPhotos = 0; // 总的拍摄次数
+  int _happyPhotos = 0; // 开心的次数
 
   @override
   void initState() {
@@ -273,6 +280,8 @@ class _RemainingTimeDisplayWidgetState
         });
       } else {
         timer.cancel();
+        double happyPercentage =
+            (_totalPhotos > 0) ? (_happyPhotos / _totalPhotos) * 100 : 0;
         // 更新数据库
         final FirebaseDatabase database = FirebaseDatabase(
             databaseURL:
@@ -290,9 +299,11 @@ class _RemainingTimeDisplayWidgetState
           // 更新最新记录，添加Finish数据为1
           await databaseReference.child(latestKey).update({
             'Finish': 1,
+            'HappyPercentage': happyPercentage,
           });
 
-          print('Finish data updated successfully with value 1');
+          print(
+              'Finish data and happy percentage updated successfully with value 1 and $happyPercentage%');
         } else {
           print('No data found');
         }
@@ -377,9 +388,9 @@ class _RemainingTimeDisplayWidgetState
     // 读取图片文件为 Image 对象
     img.Image? originalImage = img.decodeImage(imageFile.readAsBytesSync());
     if (originalImage != null) {
-      // 逆时针旋转 90 度
-      // 逆时针旋转 90 度
+      // 逆时针旋转 90 度，注意：这里需要设置正确的旋转角度
       img.Image rotatedImage = img.copyRotate(originalImage, angle: 0);
+      print('图像旋转完成');
 
       // 计算裁剪尺寸和开始点，以实现中心裁剪为 1:1 长宽比
       int size = min(rotatedImage.width, rotatedImage.height);
@@ -389,36 +400,56 @@ class _RemainingTimeDisplayWidgetState
       // 中心裁剪为 1:1 长宽比
       img.Image croppedImage = img.copyCrop(rotatedImage,
           x: startX, y: startY, width: size, height: size);
+      print('图像裁剪完成');
 
+      // 调整图像尺寸为 48x48
       img.Image resizedImage =
           img.copyResize(croppedImage, width: 48, height: 48);
+      print('图像尺寸调整完成');
 
       // 将裁剪后的图像编码为 JPG
       Uint8List jpg = img.encodeJpg(resizedImage);
+      print('图像编码为 JPG 完成');
+      print(jpg);
 
-      // 保存到图库
       final mean = [0.485, 0.456, 0.406];
       final std = [0.229, 0.224, 0.225];
+
+      // 假设您已经加载了分类模型到 _classificationModel
       if (widget.model != null) {
-        // 将处理后的图像数据写入临时文件
         final tempDir = await getTemporaryDirectory();
-        File tempImageFile = File('${tempDir.path}/temp_image.jpg')
-          ..writeAsBytesSync(jpg);
+        File tempImageFile =
+            File('/data/user/0/com.example.testapp/cache/temp_image.jpg')
+              ..writeAsBytesSync(jpg);
 
-        // 使用模型对处理后的图片进行情感识别
-        String prediction = await widget.model.getImagePrediction(
-            tempImageFile, // 处理后的图片文件
-            48,
-            48, // 目标宽度和高度
-            "assets/labels/labels.csv",
-            mean: mean,
-            std: std // 标签文件路径
-            );
+        if (!tempImageFile.existsSync()) {
+          print('临时图像文件不存在');
+          return;
+        }
 
-        print(prediction);
+        print('处理后的图像写入临时文件完成，文件路径: ${tempImageFile.path}');
 
-        // 删除临时文件
-        await tempImageFile.delete();
+        try {
+          Uint8List imageBytes = await tempImageFile.readAsBytes();
+          print('开始情感识别...');
+
+          // 调用getImagePredictionList方法获取所有类别的预测概率列表
+          List<double?>? predictionList =
+              await widget.model?.getImagePredictionList(imageBytes);
+          if (predictionList != null) {
+            // 遍历预测列表并打印每个预测概率
+            for (int i = 0; i < predictionList.length; i++) {
+              print('类别 $i 的预测概率: ${predictionList[i]}');
+            }
+          } else {
+            print('预测失败');
+          }
+        } catch (e) {
+          print('情感识别出错：$e');
+        } finally {
+          await tempImageFile.delete();
+          print('临时图像文件已删除');
+        }
       }
     }
   }

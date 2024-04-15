@@ -219,7 +219,10 @@ class _RemainingTimeDisplayWidgetState
   String _remainingTime = "00:00";
   Timer? _timer;
   int _totalPhotos = 0; // 总的拍摄次数
-  int _happyPhotos = 0; // 开心的次数
+  int _unhappyPhotos = 0; // 开心的次数
+  double unhappyPercentage = 0.0;
+  double happyPercentage = 0.0;
+
 
   @override
   void initState() {
@@ -280,8 +283,6 @@ class _RemainingTimeDisplayWidgetState
         });
       } else {
         timer.cancel();
-        double happyPercentage =
-            (_totalPhotos > 0) ? (_happyPhotos / _totalPhotos) * 100 : 0;
         // 更新数据库
         final FirebaseDatabase database = FirebaseDatabase(
             databaseURL:
@@ -415,42 +416,58 @@ class _RemainingTimeDisplayWidgetState
       final mean = [0.485, 0.456, 0.406];
       final std = [0.229, 0.224, 0.225];
 
-      // 假设您已经加载了分类模型到 _classificationModel
-      if (widget.model != null) {
-        final tempDir = await getTemporaryDirectory();
-        File tempImageFile =
-            File('/data/user/0/com.example.testapp/cache/temp_image.jpg')
-              ..writeAsBytesSync(jpg);
+if (widget.model != null) {
+  final tempDir = await getTemporaryDirectory();
+  File tempImageFile = File('${tempDir.path}/temp_image.jpg')
+    ..writeAsBytesSync(jpg);
 
-        if (!tempImageFile.existsSync()) {
-          print('临时图像文件不存在');
-          return;
-        }
+  if (!tempImageFile.existsSync()) {
+    print('临时图像文件不存在');
+    return;
+  }
 
-        print('处理后的图像写入临时文件完成，文件路径: ${tempImageFile.path}');
+  print('处理后的图像写入临时文件完成，文件路径: ${tempImageFile.path}');
 
-        try {
-          Uint8List imageBytes = await tempImageFile.readAsBytes();
-          print('开始情感识别...');
+  try {
+    Uint8List imageBytes = await tempImageFile.readAsBytes();
+    print('开始情感识别...');
 
-          // 调用getImagePredictionList方法获取所有类别的预测概率列表
-          List<double?>? predictionList =
-              await widget.model?.getImagePredictionList(imageBytes);
-          if (predictionList != null) {
-            // 遍历预测列表并打印每个预测概率
-            for (int i = 0; i < predictionList.length; i++) {
-              print('类别 $i 的预测概率: ${predictionList[i]}');
-            }
-          } else {
-            print('预测失败');
-          }
-        } catch (e) {
-          print('情感识别出错：$e');
-        } finally {
-          await tempImageFile.delete();
-          print('临时图像文件已删除');
-        }
+    // 假设类别的顺序是: angry, disgust, fear, happy, neutral, sad, surprise
+    List<double?>? predictionList =
+        await widget.model?.getImagePredictionListProbabilities(imageBytes);
+    if (predictionList != null && predictionList.length >= 6) {
+      // 获取happy和sad的预测概率
+      double happyProbability = predictionList[2] ?? 0; // happy的索引为3
+      double sadProbability = predictionList[5] ?? 0;   // sad的索引为5
+
+      print('happy的预测概率: $happyProbability');
+      print('sad的预测概率: $sadProbability');
+
+      // 如果sad的概率高于happy，更新unhappyPhotos计数器
+      if (sadProbability > happyProbability) {
+        _unhappyPhotos++;
       }
+
+      _totalPhotos++; // 更新总照片数
+
+      // 计算不开心的百分比
+      unhappyPercentage = (_unhappyPhotos / _totalPhotos) * 100;
+      // 计算开心的百分比
+      happyPercentage = 100 - unhappyPercentage;
+
+      print('不开心的百分比: $unhappyPercentage%');
+      print('开心的百分比: $happyPercentage%');
+    } else {
+      print('预测列表长度不足以提供happy和sad的概率');
+    }
+  } catch (e) {
+    print('情感识别出错：$e');
+  } finally {
+    await tempImageFile.delete();
+    print('临时图像文件已删除');
+  }
+}
+
     }
   }
 

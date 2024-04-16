@@ -51,6 +51,8 @@ dependencies:
   image_gallery_saver: ^2.0.3
   image: ^4.1.7
   flutter_pytorch: ^1.0.1
+  animated_toggle_switch: ^0.8.2
+  flutter_switch: ^0.3.2
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -114,6 +116,9 @@ flutter:
     - assets/icons/superHappy.svg
     - assets/models/model_best.pt
     - assets/labels/labels.txt
+    - assets/icons/history_1.svg
+    - assets/icons/tomato.svg
+    - assets/icons/home_1.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -18,6 +18,7 @@ class HistoryPage extends StatelessWidget {
     final double verticalPadding = screenHeight * 0.01;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFFF5F1),
       body: FutureBuilder<DataSnapshot>(
         future: databaseReference.get(),
         builder: (context, snapshot) {

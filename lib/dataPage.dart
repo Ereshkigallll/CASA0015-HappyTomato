@@ -56,9 +56,13 @@ class FocusTimeCard extends StatefulWidget {
 class _FocusTimeCardState extends State<FocusTimeCard> {
   bool isSwitched = false;
   int totalTimeMinutes = 0;
+  int totalCountNum = 0; // 总记录条数
   int thisMonthTotalMinutes = 0;
+  int thisMonthCount = 0; // 本月记录条数
   int thisWeekTotalMinutes = 0;
+  int thisWeekCount = 0; // 本周记录条数
   int todayTotalMinutes = 0;
+  int todayCount = 0; // 今日记录条数
 
   @override
   void initState() {
@@ -67,62 +71,83 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
   }
 
   void fetchTotalTime() {
-  FirebaseDatabase database = FirebaseDatabase.instanceFor(
-    app: Firebase.app(),
-    databaseURL: 'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app'
-  );
-  DatabaseReference ref = database.ref('countdowns');
+    FirebaseDatabase database = FirebaseDatabase.instanceFor(
+        app: Firebase.app(),
+        databaseURL:
+            'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
+    DatabaseReference ref = database.ref('countdowns');
 
-  DateTime now = DateTime.now();
-  DateTime startOfCurrentMonth = DateTime(now.year, now.month);
-  DateTime startOfCurrentWeek = DateTime(now.year, now.month, now.day - (now.weekday - 1));
-  DateTime startOfToday = DateTime(now.year, now.month, now.day);
+    DateTime now = DateTime.now();
+    DateTime startOfCurrentMonth = DateTime(now.year, now.month);
+    DateTime startOfCurrentWeek =
+        DateTime(now.year, now.month, now.day - (now.weekday - 1));
+    DateTime startOfToday = DateTime(now.year, now.month, now.day);
 
-  ref.onValue.listen((DatabaseEvent event) {
-    final data = event.snapshot.value as Map<dynamic, dynamic>?;
-    int totalMinutes = 0;
-    int monthMinutes = 0;
-    int weekMinutes = 0;
-    int dayMinutes = 0;
+    ref.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+      int totalMinutes = 0;
+      int totalCount = 0;
+      int monthMinutes = 0;
+      int monthCount = 0;
+      int weekMinutes = 0;
+      int weekCount = 0;
+      int dayMinutes = 0;
+      int dayCount = 0;
 
-    if (data != null) {
-      data.forEach((key, value) {
-        if (value != null && value['selectedTime'] != null && value['timestamp'] != null) {
-          DateTime timestamp = DateTime.tryParse(value['timestamp']) ?? DateTime.now();
-          String time = value['selectedTime'];
-          List<String> parts = time.split(':');
-          if (parts.length == 2) {
-            int minutes = int.tryParse(parts[0]) ?? 0;
+      if (data != null) {
+        data.forEach((key, value) {
+          if (value != null &&
+              value['selectedTime'] != null &&
+              value['timestamp'] != null) {
+            DateTime timestamp =
+                DateTime.tryParse(value['timestamp']) ?? DateTime.now();
+            String time = value['selectedTime'];
+            List<String> parts = time.split(':');
+            if (parts.length == 2) {
+              int minutes = int.tryParse(parts[0]) ?? 0;
 
-            // Accumulate total minutes
-            totalMinutes += minutes;
+              // Accumulate total minutes
+              totalMinutes += minutes;
+              totalCount++;
 
-            // Check and accumulate for current month
-            if (timestamp.isAfter(startOfCurrentMonth) && timestamp.isBefore(DateTime(now.year, now.month + 1))) {
-              monthMinutes += minutes;
-            }
+              // Check and accumulate for current month
+              if (timestamp.isAfter(startOfCurrentMonth) &&
+                  timestamp.isBefore(DateTime(now.year, now.month + 1))) {
+                monthMinutes += minutes;
+                monthCount++;
+              }
 
-            // Check and accumulate for current week
-            if (timestamp.isAfter(startOfCurrentWeek) && timestamp.isBefore(startOfCurrentWeek.add(Duration(days: 7)))) {
-              weekMinutes += minutes;
-            }
+              // Check and accumulate for current week
+              if (timestamp.isAfter(startOfCurrentWeek) &&
+                  timestamp
+                      .isBefore(startOfCurrentWeek.add(Duration(days: 7)))) {
+                weekMinutes += minutes;
+                weekCount++;
+              }
 
-            // Check and accumulate for today
-            if (timestamp.year == now.year && timestamp.month == now.month && timestamp.day == now.day) {
-              dayMinutes += minutes;
+              // Check and accumulate for today
+              if (timestamp.year == now.year &&
+                  timestamp.month == now.month &&
+                  timestamp.day == now.day) {
+                dayMinutes += minutes;
+                dayCount++;
+              }
             }
           }
-        }
+        });
+      }
+      setState(() {
+        totalTimeMinutes = totalMinutes;
+        totalCountNum = totalCount;
+        thisMonthTotalMinutes = monthMinutes;
+        thisMonthCount = monthCount;
+        thisWeekTotalMinutes = weekMinutes;
+        thisWeekCount = weekCount;
+        todayTotalMinutes = dayMinutes;
+        todayCount = dayCount;
       });
-    }
-    setState(() {
-      totalTimeMinutes = totalMinutes;
-      thisMonthTotalMinutes = monthMinutes;
-      thisWeekTotalMinutes = weekMinutes;
-      todayTotalMinutes = dayMinutes;
     });
-  });
-}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +169,7 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total Focus Time',
+              Text(isSwitched ? 'Total Tomatoes' : 'Total Focus Time',  // 根据 isSwitched 显示不同的文本
                   style: TextStyle(
                     color: Color(0xffEF7453),
                     fontSize: 22,
@@ -197,10 +222,18 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildTimeBox('Until Now', '$totalTimeMinutes', screenWidth * 0.4,
+                    _buildTimeBox(
+                        'Until Now',
+                        isSwitched ? '$totalCountNum' : '$totalTimeMinutes',
+                        screenWidth * 0.4,
                         screenHeight * 0.1),
                     SizedBox(width: horizontalPadding * 3),
-                    _buildTimeBox('This Month', '$thisMonthTotalMinutes', screenWidth * 0.4,
+                    _buildTimeBox(
+                        'This Month',
+                        isSwitched
+                            ? '$thisMonthCount'
+                            : '$thisMonthTotalMinutes',
+                        screenWidth * 0.4,
                         screenHeight * 0.1),
                   ],
                 ),
@@ -208,11 +241,17 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildTimeBox('This Week', '$thisWeekTotalMinutes', screenWidth * 0.4,
+                    _buildTimeBox(
+                        'This Week',
+                        isSwitched ? '$thisWeekCount' : '$thisWeekTotalMinutes',
+                        screenWidth * 0.4,
                         screenHeight * 0.1),
                     SizedBox(width: horizontalPadding * 3),
                     _buildTimeBox(
-                        'Today', '$todayTotalMinutes', screenWidth * 0.4, screenHeight * 0.1),
+                        'Today',
+                        isSwitched ? '$todayCount' : '$todayTotalMinutes',
+                        screenWidth * 0.4,
+                        screenHeight * 0.1),
                   ],
                 ),
               ],
@@ -259,13 +298,13 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
                       fontWeight: FontWeight.w800,
                       color: Color(0xffFFF5F1),
                     )),
-                Text(" Mins",
-                    style: TextStyle(
-                      fontSize: 14, // 调整为需要的大小
-                      fontFamily: 'Inter-Display',
-                      fontWeight: FontWeight.w800, // 可以调整为更轻的字重
-                      color: Color(0xffFFF5F1),
-                    )),
+                !isSwitched ? Text(" Mins",
+          style: TextStyle(
+            fontSize: 14,
+            fontFamily: 'Inter-Display',
+            fontWeight: FontWeight.w800,
+            color: Color(0xffFFF5F1),
+          )) : Container(),
               ],
             ),
           ],

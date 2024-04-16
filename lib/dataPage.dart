@@ -436,7 +436,7 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(isSwitched ? 'Total Tomatoes' : 'Total Focus Time',  // 根据 isSwitched 显示不同的文本
+              Text(isSwitched ? 'Average Tomatoes' : 'Average Focus Time',  // 根据 isSwitched 显示不同的文本
                   style: TextStyle(
                     color: Color(0xffEF7453),
                     fontSize: 22,

@@ -42,7 +42,6 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
     final double verticalPadding = screenHeight * 0.01;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF5F1),
       appBar: const CustomAppBar(), // 确保您已经有了CustomAppBar的实现
       body: SingleChildScrollView(
         child: Padding(
@@ -130,7 +129,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xFFFFF5F1),
       leading: IconButton(
         icon: SvgPicture.asset(
           'assets/icons/back.svg', // 请确保使用正确的图标文件

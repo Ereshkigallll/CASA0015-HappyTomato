@@ -13,7 +13,6 @@ class dataPage extends StatelessWidget {
     final double horizontalPadding = screenWidth * 0.01;
     final double verticalPadding = screenHeight * 0.01;
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF5F1),
       body: Column(
         children: [
           TitleSection(),

@@ -25,7 +25,7 @@ Future<void> main() async {
   // 加载保存的主题选择
   final prefs = await SharedPreferences.getInstance();
   final selectedThemeIndex =
-      prefs.getInt('selectedThemeIndex') ?? 0; // 默认使用系统主题
+      prefs.getInt('selectedThemeIndex') ?? 1; // 默认使用系统主题
 
   ThemeMode initialThemeMode = ThemeMode.system; // 默认为系统主题
   ThemeData initialThemeData = ThemeData.light(); // 默认主题数据
@@ -100,14 +100,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget buildMainContent() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final double horizontalPadding = screenWidth * 0.01;
-    final double verticalPadding = screenHeight * 0.01;
+    final double horizontalPadding = (screenWidth * 0.01).round().toDouble();
+    final double verticalPadding = (screenHeight * 0.01).round().toDouble();
 
     // 返回现有的主页内容 Column Widget
     return Column(
       children: <Widget>[
         AppBar(
-          backgroundColor: const Color(0xFFFFF5F1),
           leading: Padding(
             padding: EdgeInsets.only(left: horizontalPadding),
             child: IconButton(
@@ -128,7 +127,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ],
         ),
         Padding(
-          padding: EdgeInsets.only(bottom: 1.5 * verticalPadding),
+          padding: EdgeInsets.only(bottom: 9),
           child: const TextWidget(text: 'HappyTomato'),
         ),
         Container(
@@ -144,7 +143,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ),
         Padding(
           padding: EdgeInsets.only(
-              top: 2 * verticalPadding, bottom: 4 * verticalPadding),
+              top: 20, bottom: 29),
           child: SwitchWithText(
             initialValue: false, // 开关的初始状态
             onChanged: (bool value) {
@@ -154,7 +153,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 2 * verticalPadding),
+          padding: EdgeInsets.only(top: 18),
           child: StartButton(
             text: 'START',
             onTap: () {
@@ -176,7 +175,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MaterialApp(
         theme: themeNotifier.themeData,
         home: Scaffold(
-          backgroundColor: const Color(0xFFFFF5F1),
           body: Stack(
             children: <Widget>[
               AnimatedSwitcher(
@@ -372,7 +370,6 @@ class _TomatoClockState extends State<TomatoClock> {
   Widget build(BuildContext context) {
     final formattedTime = _formatTime(_progress);
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: GestureDetector(
           onPanStart: (details) => _onPanStart(details.localPosition),
@@ -634,7 +631,7 @@ class StartButton extends StatelessWidget {
         }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xffEF7453), // 修改按钮的背景颜色
+        backgroundColor: Color(0xffEF7453), // 修改按钮的背景颜色
         shadowColor: Colors.black,
         elevation: 5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

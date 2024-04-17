@@ -12,22 +12,26 @@ const Color iconColorSecondary = Color(0xFF4F989E);
 
 // 暗色主题颜色占位符
 const Color darkBackgroundColor = Color(0xFF0F1C2E);
-const Color darkPrimaryColor = Color(0xFF1F1F1F);
-const Color darkButtonColor2 = Color(0xFF37474F);
-const Color darkBottomNavigationBarColor = Color(0xFF222222);
-const Color darkTextColorPrimary = Color(0xFFE0E0E0);
-const Color darkTextColorSecondary = Color(0xFFBDBDBD);
-const Color darkIconColorPrimary = Color(0xFFE0E0E0);
-const Color darkIconColorSecondary = Color(0xFFBDBDBD);
+const Color darkPrimaryColor = Color(0xFF0F1C2E);
+const Color darkButtonColor2 = Color(0xFF0F1C2E);
+const Color darkBottomNavigationBarColor = Color(0xFF0F1C2E);
+const Color darkTextColorPrimary = Color(0xFF0F1C2E);
+const Color darkTextColorSecondary = Color(0xFF0F1C2E);
+const Color darkIconColorPrimary = Color(0xFF0F1C2E);
+const Color darkIconColorSecondary = Color(0xFF0F1C2E);
 
 // 亮色主题定义
 final ThemeData lightTheme1 = ThemeData(
   brightness: Brightness.light,
   scaffoldBackgroundColor: backgroundColor,
-  primaryColor: backgroundColor,
-  colorScheme: ColorScheme.light(
+  primaryColor: primaryColor,
+  appBarTheme: AppBarTheme(
+    color: backgroundColor, // 设置AppBar的背景颜色
+    elevation: 0, // 可以根据需要设置阴影
+  ),
+  colorScheme: const ColorScheme.light(
     primary: backgroundColor,
-    secondary: backgroundColor, // 替代以前的accentColor
+    secondary: backgroundColor,
   ),
   buttonTheme: ButtonThemeData(
     buttonColor: primaryColor,
@@ -35,19 +39,19 @@ final ThemeData lightTheme1 = ThemeData(
       borderRadius: BorderRadius.circular(8.0),
     ),
   ),
-  floatingActionButtonTheme: FloatingActionButtonThemeData(
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: primaryColor,
   ),
-  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: backgroundColor,
     selectedItemColor: backgroundColor,
     unselectedItemColor: backgroundColor,
   ),
-  textTheme: TextTheme(
+  textTheme: const TextTheme(
     bodyText1: TextStyle(color: textColorPrimary),
     bodyText2: TextStyle(color: textColorSecondary),
   ),
-  iconTheme: IconThemeData(
+  iconTheme: const IconThemeData(
     color: iconColorPrimary,
   ),
 );
@@ -57,9 +61,13 @@ final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   scaffoldBackgroundColor: darkBackgroundColor,
   primaryColor: darkPrimaryColor,
-  colorScheme: ColorScheme.dark(
+  appBarTheme: const AppBarTheme(
+    color: darkBackgroundColor, // 设置AppBar的背景颜色
+    elevation: 0, // 可以根据需要设置阴影
+  ),
+  colorScheme: const ColorScheme.dark(
     primary: darkPrimaryColor,
-    secondary: darkPrimaryColor, // 替代以前的accentColor
+    secondary: darkPrimaryColor,
   ),
   buttonTheme: ButtonThemeData(
     buttonColor: darkPrimaryColor,
@@ -67,19 +75,19 @@ final ThemeData darkTheme = ThemeData(
       borderRadius: BorderRadius.circular(8.0),
     ),
   ),
-  floatingActionButtonTheme: FloatingActionButtonThemeData(
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: darkPrimaryColor,
   ),
-  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: darkBottomNavigationBarColor,
     selectedItemColor: darkPrimaryColor,
     unselectedItemColor: darkIconColorSecondary,
   ),
-  textTheme: TextTheme(
+  textTheme: const TextTheme(
     bodyText1: TextStyle(color: darkTextColorPrimary),
     bodyText2: TextStyle(color: darkTextColorSecondary),
   ),
-  iconTheme: IconThemeData(
+  iconTheme: const IconThemeData(
     color: darkIconColorPrimary,
   ),
 );

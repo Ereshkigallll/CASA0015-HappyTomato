@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:testapp/themes.dart';
 
 class ThemeNotifier with ChangeNotifier {
   ThemeData _themeData;
@@ -25,12 +26,19 @@ class ThemeNotifier with ChangeNotifier {
     switch (themeMode) {
       case ThemeMode.light:
         _themeData = ThemeData.light().copyWith(
-          scaffoldBackgroundColor: const Color(0xFFFFF5F1), // 亮色主题背景色
-        );
+            scaffoldBackgroundColor: const Color(0xFFFFF5F1), // 亮色主题背景色
+            appBarTheme: const AppBarTheme(
+              color: const Color(0xFFFFF5F1),
+            ));
         break;
       case ThemeMode.dark:
-        _themeData = ThemeData.dark(); // 暗色主题
+        _themeData = ThemeData.dark().copyWith(
+            scaffoldBackgroundColor: const Color(0xFF0F1C2E), // 暗色主题背景色
+            appBarTheme: const AppBarTheme(
+              color: const Color(0xFF0F1C2E),
+            ));
         break;
+
       case ThemeMode.system:
         applySystemTheme(); // 根据系统主题应用亮色或暗色主题
         break;

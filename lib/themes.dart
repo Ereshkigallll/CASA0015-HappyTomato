@@ -11,7 +11,7 @@ const Color iconColorPrimary = Color(0xFFFFF5F1);
 const Color iconColorSecondary = Color(0xFF4F989E);
 
 // 暗色主题颜色占位符
-const Color darkBackgroundColor = Color(0xFF121212);
+const Color darkBackgroundColor = Color(0xFF0F1C2E);
 const Color darkPrimaryColor = Color(0xFF1F1F1F);
 const Color darkButtonColor2 = Color(0xFF37474F);
 const Color darkBottomNavigationBarColor = Color(0xFF222222);
@@ -24,10 +24,10 @@ const Color darkIconColorSecondary = Color(0xFFBDBDBD);
 final ThemeData lightTheme1 = ThemeData(
   brightness: Brightness.light,
   scaffoldBackgroundColor: backgroundColor,
-  primaryColor: primaryColor,
+  primaryColor: backgroundColor,
   colorScheme: ColorScheme.light(
-    primary: primaryColor,
-    secondary: primaryColor, // 替代以前的accentColor
+    primary: backgroundColor,
+    secondary: backgroundColor, // 替代以前的accentColor
   ),
   buttonTheme: ButtonThemeData(
     buttonColor: primaryColor,
@@ -39,9 +39,9 @@ final ThemeData lightTheme1 = ThemeData(
     backgroundColor: primaryColor,
   ),
   bottomNavigationBarTheme: BottomNavigationBarThemeData(
-    backgroundColor: bottomNavigationBarColor,
-    selectedItemColor: primaryColor,
-    unselectedItemColor: iconColorSecondary,
+    backgroundColor: backgroundColor,
+    selectedItemColor: backgroundColor,
+    unselectedItemColor: backgroundColor,
   ),
   textTheme: TextTheme(
     bodyText1: TextStyle(color: textColorPrimary),

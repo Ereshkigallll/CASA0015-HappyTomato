@@ -119,6 +119,10 @@ flutter:
     - assets/icons/history_1.svg
     - assets/icons/tomato.svg
     - assets/icons/home_1.svg
+    - assets/icons/happy.svg
+    - assets/icons/nothappy.svg
+    - assets/icons/notnothappy.svg
+    - assets/icons/disabled.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

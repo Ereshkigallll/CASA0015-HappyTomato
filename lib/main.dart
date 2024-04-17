@@ -32,7 +32,7 @@ Future<void> main() async {
 
   if (selectedThemeIndex == 1) {
     initialThemeMode = ThemeMode.light;
-    initialThemeData = lightTheme1; // 你的自定义亮色主题
+    initialThemeData = lightTheme; // 你的自定义亮色主题
   } else if (selectedThemeIndex == 2) {
     initialThemeMode = ThemeMode.dark;
     initialThemeData = darkTheme; // 你的自定义暗色主题
@@ -102,6 +102,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     final screenHeight = MediaQuery.of(context).size.height;
     final double horizontalPadding = (screenWidth * 0.01).round().toDouble();
     final double verticalPadding = (screenHeight * 0.01).round().toDouble();
+    final colorScheme = Theme.of(context).colorScheme;
 
     // 返回现有的主页内容 Column Widget
     return Column(
@@ -160,6 +161,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               // 在这里实现按钮按下后的逻辑
               print('Button pressed');
             },
+            buttonColor: colorScheme.primary,
             selectedTime: _selectedTime, // 传递选定的时间到 StartButton
           ),
         ),
@@ -559,12 +561,14 @@ class StartButton extends StatelessWidget {
   final String text;
   final String selectedTime; // 用于接收用户选择的时间
   final VoidCallback onTap;
+  final Color buttonColor;
 
-  const StartButton({
+  StartButton({
     Key? key,
     required this.text,
     required this.selectedTime, // 在构造函数中接收 selectedTime
     required this.onTap,
+    required this.buttonColor,
   }) : super(key: key);
 
   @override
@@ -593,7 +597,7 @@ class StartButton extends StatelessWidget {
                   Center(
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        backgroundColor: Color(0xFF4F989E),
+                        backgroundColor: buttonColor,
                       ),
                       onPressed: () {
                         Navigator.of(context).pop(); // 关闭提示窗口

@@ -142,7 +142,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       title: const Text(
-        'Dark Mode',
+        'Theme Mode',
         style: TextStyle(
           color: Color(0xFF4F989E), // 文本颜色
           fontFamily: 'Inter-Display', // 字体

@@ -7,7 +7,8 @@ class SettingHelpPage extends StatelessWidget {
 
   // 用于在应用内打开浏览器的方法
   void _openBrowser(BuildContext context, String url) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => BrowserPage(url: url)));
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => BrowserPage(url: url)));
   }
 
   @override
@@ -29,7 +30,8 @@ class SettingHelpPage extends StatelessWidget {
               Center(
                 child: SvgPicture.asset(
                   'assets/icons/help.svg', // 使用适用于帮助页面的图标
-                  colorFilter: const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(
+                      Color(0xFF4F989E), BlendMode.srcIn),
                   width: 30.0 * horizontalPadding,
                   height: 30.0 * horizontalPadding,
                 ),
@@ -37,13 +39,43 @@ class SettingHelpPage extends StatelessWidget {
               SizedBox(height: 8 * verticalPadding),
               Button(
                 text: 'Github Repository',
-                onPressed: () => _openBrowser(context, 'https://github.com/Ereshkigallll/CASA0015-HappyTomato/tree/main'),
+                onPressed: () => _openBrowser(context,
+                    'https://github.com/Ereshkigallll/CASA0015-HappyTomato/tree/main'),
+              ),
+              SizedBox(height: 2 * verticalPadding),
+              Container(
+                padding: EdgeInsets.symmetric(
+                    vertical: 10, horizontal: 20), // 根据需要调整内部间距
+                alignment: Alignment.center,
+                child: Text(
+                  'Visit our Github repository to view the source code and some useflu tips in the Readme File.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[
+                        600], // You can choose a color that fits your theme
+                    fontSize: 14.0, // Adjust the size as needed
+                  ),
+                ),
               ),
               SizedBox(height: 2 * verticalPadding),
               Button(
                 text: 'Personal Website',
-                onPressed: () => _openBrowser(context, 'https://ereshkigallll.github.io/'),
+                onPressed: () =>
+                    _openBrowser(context, 'https://ereshkigallll.github.io/'),
               ),
+              SizedBox(height: 2 * verticalPadding),
+              Container(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // 根据需要调整内部间距
+            alignment: Alignment.center,
+              child: Text(
+                'Explore my personal website for more projects and contact information.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors
+                      .grey[600], // You can choose a color that fits your theme
+                  fontSize: 14.0, // Adjust the size as needed
+                ),
+              ),),
             ],
           ),
         ),
@@ -102,7 +134,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-
 
 class Button extends StatelessWidget {
   final String text;

@@ -41,7 +41,7 @@ class SettingsPage extends StatelessWidget {
               Center(
                 // 每个按钮都使用 Center 包裹以确保水平居中
                 child: CustomButton(
-                    text: 'Dark Mode',
+                    text: 'Theme Mode',
                     onPressed: () {
                       Navigator.of(context)
                           .push(_createRoute(SettingDarkPage()));

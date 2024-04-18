@@ -18,11 +18,11 @@ final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   scaffoldBackgroundColor: lightBackgroundColor,
   primaryColor: lightPrimaryColor,
-  appBarTheme: AppBarTheme(
+  appBarTheme: const AppBarTheme(
     color: lightBackgroundColor,
     elevation: 0,
   ),
-  colorScheme: ColorScheme.light(
+  colorScheme: const ColorScheme.light(
     primary: lightPrimaryColor,
     secondary: lightIconColorSecondary,
     background: lightBackgroundColor,
@@ -30,19 +30,19 @@ final ThemeData lightTheme = ThemeData(
     onSecondary: Colors.black,
     onBackground: lightTextColorSecondary,
   ),
-  floatingActionButtonTheme: FloatingActionButtonThemeData(
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: lightPrimaryColor,
   ),
-  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: lightBackgroundColor,
     selectedItemColor: lightPrimaryColor,
     unselectedItemColor: lightTextColorSecondary,
   ),
-  textTheme: TextTheme(
-    bodyText1: TextStyle(color: lightTextColorPrimary),
-    bodyText2: TextStyle(color: lightTextColorSecondary),
+  textTheme: const TextTheme(
+    titleMedium: TextStyle(color: lightTextColorPrimary), // bodyText1 替换为 subtitle1
+    bodyMedium: TextStyle(color: lightTextColorSecondary),
   ),
-  iconTheme: IconThemeData(
+  iconTheme: const IconThemeData(
     color: lightIconColorSecondary,
   ),
 );
@@ -52,11 +52,11 @@ final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   scaffoldBackgroundColor: darkBackgroundColor,
   primaryColor: darkPrimaryColor,
-  appBarTheme: AppBarTheme(
+  appBarTheme: const AppBarTheme(
     color: darkBackgroundColor,
     elevation: 0,
   ),
-  colorScheme: ColorScheme.dark(
+  colorScheme: const ColorScheme.dark(
     primary: darkPrimaryColor,
     secondary: darkIconColorSecondary,
     background: darkBackgroundColor,
@@ -64,20 +64,19 @@ final ThemeData darkTheme = ThemeData(
     onSecondary: Colors.black,
     onBackground: darkTextColorSecondary,
   ),
-  floatingActionButtonTheme: FloatingActionButtonThemeData(
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: darkPrimaryColor,
   ),
-  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: darkBackgroundColor,
     selectedItemColor: darkPrimaryColor,
     unselectedItemColor: darkIconColorSecondary,
   ),
-  textTheme: TextTheme(
-    bodyText1: TextStyle(color: darkTextColorPrimary),
-    bodyText2: TextStyle(color: darkTextColorSecondary),
+  textTheme: const TextTheme(
+    titleMedium: TextStyle(color: darkTextColorPrimary), // bodyText1 替换为 subtitle1
+    bodyMedium: TextStyle(color: darkTextColorSecondary),
   ),
-  iconTheme: IconThemeData(
+  iconTheme: const IconThemeData(
     color: darkIconColorSecondary,
   ),
 );
-

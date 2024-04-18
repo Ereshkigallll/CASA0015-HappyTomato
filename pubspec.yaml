@@ -125,8 +125,8 @@ flutter:
     - assets/icons/tomato.svg
     - assets/icons/home_1.svg
     - assets/icons/happy.svg
-    - assets/icons/nothappy.svg
-    - assets/icons/notnothappy.svg
+    - assets/icons/notHappy.svg
+    - assets/icons/notNotHappy.svg
     - assets/icons/disabled.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -40,7 +40,7 @@ Future<void> main() async {
 
   runApp(Intro(
     padding: const EdgeInsets.all(8),
-    borderRadius: BorderRadius.all(Radius.circular(4)),
+    borderRadius: const BorderRadius.all(Radius.circular(4)),
     maskColor: const Color.fromRGBO(0, 0, 0, .6),
     noAnimation: false,
     maskClosable: false,
@@ -66,7 +66,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _selectedTime = "00:00"; // 用于保存从 TomatoClock 选择的时间
   int _selectedIndex = 0;
-  GlobalKey _tomatoClockKey = GlobalKey();
   bool isButtonVisible = true; // 控制按钮显示的状态
 
   @override
@@ -107,7 +106,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget buildMainContent() {
     Intro intro = Intro.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     final double horizontalPadding = (screenWidth * 0.01).round().toDouble();
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -140,17 +138,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             children: <Widget>[
               IntroStepBuilder(
                   order: 2,
-                  text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+                  text:
+                      'HappyTomato is an app that analyses your emotions while you are working with the tomato clock.It helps you to find out how your emotions change while you are working to help you organise your life better.',
                   builder: (context, key) {
                     return Padding(
                       key: key,
-                      padding: EdgeInsets.only(bottom: 9),
+                      padding: const EdgeInsets.only(bottom: 9),
                       child: const TextWidget(text: 'HappyTomato'),
                     );
                   }),
               IntroStepBuilder(
                 order: 3,
-                text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+                text:
+                    'This is where you set the tomato time, drag the orange disc to select the time, and you can start focusing on your work once you have chosen the time!',
                 builder: (context, key) {
                   return Container(
                     key: key, // 将 IntroStepBuilder 的 key 传递给 Container
@@ -168,15 +168,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               ),
               IntroStepBuilder(
                   order: 4,
-                  text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+                  text:
+                      'Here you can set whether or not the app is going to analyse your emotions while you are working.',
                   builder: (context, key) {
                     return Padding(
                       key: key,
-                      padding: EdgeInsets.only(top: 20, bottom: 29),
+                      padding: const EdgeInsets.only(top: 20, bottom: 29),
                       child: SwitchWithText(
                         initialValue: false, // 开关的初始状态
                         onChanged: (bool value) {
-                          print("Switch is: ${value ? 'ON' : 'OFF'}");
                         },
                         text: 'Emotion Analysis', // 描述性文本
                       ),
@@ -184,11 +184,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   }),
               IntroStepBuilder(
                   order: 5,
-                  text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+                  text:
+                      'After you have finished setting things up, tap this button to start focusing! Happy focusing!',
                   builder: (context, key) {
                     return Padding(
                       key: key,
-                      padding: EdgeInsets.only(top: 18),
+                      padding: const EdgeInsets.only(top: 18),
                       child: StartButton(
                         text: 'START',
                         onTap: () {
@@ -207,7 +208,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       floatingActionButton: isButtonVisible
           ? IntroStepBuilder(
               order: 1,
-              text: 'OK, let\'s start.',
+              text: ' Let\'s start a short introduction to this app!',
               builder: (context, key) => FloatingActionButton(
                 key: key,
                 child: const Icon(Icons.play_arrow),
@@ -236,7 +237,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           body: Stack(
             children: <Widget>[
               AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 300),
                 child: _currentScreen,
               ),
               Positioned(
@@ -317,7 +318,7 @@ class AppBarIcons extends StatelessWidget {
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        SettingsPage(),
+                        const SettingsPage(),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       return FadeTransition(
@@ -523,7 +524,6 @@ class ModelProvider with ChangeNotifier {
         labelPath: "assets/labels/labels.txt" // 如果您的模型需要标签文件，提供标签文件的路径
         );
     isModelLoaded = true;
-    print('Model loaded successfully.');
     notifyListeners(); // 通知监听器模型已加载
   }
 
@@ -564,11 +564,11 @@ class _SwitchWithTextState extends State<SwitchWithText> {
           value: widget.initialValue,
           textOn: 'ON',
           textOff: 'OFF',
-          colorOn: Color(0xffBFD8D4),
-          colorOff: Color(0xffEF7453),
+          colorOn: const Color(0xffBFD8D4),
+          colorOff: const Color(0xffEF7453),
           iconOn: Icons.done,
           iconOff: Icons.power_settings_new,
-          animationDuration: Duration(milliseconds: 500),
+          animationDuration: const Duration(milliseconds: 500),
           onChanged: (bool value) async {
             final modelProvider =
                 Provider.of<ModelProvider>(context, listen: false);
@@ -588,7 +588,7 @@ class _SwitchWithTextState extends State<SwitchWithText> {
           onDoubleTap: () {}, // 为空的回调函数
           onSwipe: () {}, // 为空的回调函数
         ),
-        SizedBox(width: 8), // 添加一些间隔
+        const SizedBox(width: 8), // 添加一些间隔
         Text(
           widget.text,
           style: const TextStyle(
@@ -619,7 +619,7 @@ class StartButton extends StatelessWidget {
   final VoidCallback onTap;
   final Color buttonColor;
 
-  StartButton({
+  const StartButton({
     Key? key,
     required this.text,
     required this.selectedTime, // 在构造函数中接收 selectedTime
@@ -676,7 +676,6 @@ class StartButton extends StatelessWidget {
         } else {
           onTap();
           _vibrate(); // 触发震动
-          print('Selected Time: $selectedTime');
           _saveTimeToRealtimeDatabase(selectedTime);
           final modelProvider =
               Provider.of<ModelProvider>(context, listen: false);
@@ -691,7 +690,7 @@ class StartButton extends StatelessWidget {
         }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: Color(0xffEF7453), // 修改按钮的背景颜色
+        backgroundColor: const Color(0xffEF7453), // 修改按钮的背景颜色
         shadowColor: Colors.black,
         elevation: 5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -726,9 +725,7 @@ class StartButton extends StatelessWidget {
         'selectedTime': time,
         'timestamp': DateTime.now().toIso8601String(),
       }).then((_) {
-        print('Data saved successfully');
       }).catchError((error) {
-        print('Failed to save data: $error');
       });
     }
   }

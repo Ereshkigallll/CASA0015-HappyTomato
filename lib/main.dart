@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'historyPage.dart';
 import 'dataPage.dart';
 import 'package:flutter_pytorch/flutter_pytorch.dart';
+import 'package:flutter_intro/flutter_intro.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // 加载保存的主题选择
   final prefs = await SharedPreferences.getInstance();
   final selectedThemeIndex =
       prefs.getInt('selectedThemeIndex') ?? 1; // 默认使用系统主题
@@ -38,19 +38,24 @@ Future<void> main() async {
     initialThemeData = darkTheme; // 你的自定义暗色主题
   }
 
-  runApp(
-    MultiProvider(
+  runApp(Intro(
+    padding: const EdgeInsets.all(8),
+    borderRadius: BorderRadius.all(Radius.circular(4)),
+    maskColor: const Color.fromRGBO(0, 0, 0, .6),
+    noAnimation: false,
+    maskClosable: false,
+    buttonTextBuilder: (order) => order == 3 ? 'Custom Button Text' : 'Next',
+    child: MultiProvider(
       providers: [
         ChangeNotifierProvider(
             create: (context) =>
                 ThemeNotifier(initialThemeData, initialThemeMode)),
-        ChangeNotifierProvider(
-            create: (context) => ModelProvider()), // 添加ModelProvider
+        ChangeNotifierProvider(create: (context) => ModelProvider()),
         ChangeNotifierProvider(create: (context) => CameraStateProvider()),
       ],
       child: MyApp(),
     ),
-  );
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -61,6 +66,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _selectedTime = "00:00"; // 用于保存从 TomatoClock 选择的时间
   int _selectedIndex = 0;
+  GlobalKey _tomatoClockKey = GlobalKey();
 
   @override
   void initState() {
@@ -97,77 +103,102 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
-  Widget buildMainContent() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final double horizontalPadding = (screenWidth * 0.01).round().toDouble();
-    final double verticalPadding = (screenHeight * 0.01).round().toDouble();
-    final colorScheme = Theme.of(context).colorScheme;
+Widget buildMainContent() {
+  Intro intro = Intro.of(context);
+  final screenWidth = MediaQuery.of(context).size.width;
+  final screenHeight = MediaQuery.of(context).size.height;
+  final double horizontalPadding = (screenWidth * 0.01).round().toDouble();
+  final colorScheme = Theme.of(context).colorScheme;
 
-    // 返回现有的主页内容 Column Widget
-    return Column(
-      children: <Widget>[
-        AppBar(
-          leading: Padding(
-            padding: EdgeInsets.only(left: horizontalPadding),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/landscape.svg',
-                colorFilter:
-                    const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
-                height: 35.0,
-                width: 35.0,
-              ),
-              onPressed: () {
-                // Landscape icon 的 onPressed 逻辑
+  // 使用 Scaffold 组织主界面内容和 FloatingActionButton
+  return Scaffold(
+    appBar: AppBar(
+      leading: Padding(
+        padding: EdgeInsets.only(left: horizontalPadding),
+        child: IconButton(
+          icon: SvgPicture.asset(
+            'assets/icons/landscape.svg',
+            colorFilter: const ColorFilter.mode(
+                Color(0xFF4F989E), BlendMode.srcIn),
+            height: 35.0,
+            width: 35.0,
+          ),
+          onPressed: () {
+            // Landscape icon 的 onPressed 逻辑
+          },
+        ),
+      ),
+      actions: <Widget>[
+        AppBarIcons(horizontalPadding: 1 * horizontalPadding),
+      ],
+    ),
+    body: ValueListenableBuilder(
+      valueListenable: intro.statusNotifier,
+      builder: (context, value, child) {
+        return Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(bottom: 9),
+              child: const TextWidget(text: 'HappyTomato'),
+            ),
+            IntroStepBuilder(
+              order: 2,
+              text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+              builder: (context, key) {
+                return Container(
+                  key: key, // 将 IntroStepBuilder 的 key 传递给 Container
+                  height: 350,
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: TomatoClock(
+                    onTimeSelected: (String time) {
+                      setState(() {
+                        _selectedTime = time; // 更新选定的时间
+                      });
+                    },
+                  ),
+                );
               },
             ),
-          ),
-          actions: <Widget>[
-            AppBarIcons(horizontalPadding: 1 * horizontalPadding),
+            Padding(
+              padding: EdgeInsets.only(top: 20, bottom: 29),
+              child: SwitchWithText(
+                initialValue: false, // 开关的初始状态
+                onChanged: (bool value) {
+                  print("Switch is: ${value ? 'ON' : 'OFF'}");
+                },
+                text: 'Emotion Analysis', // 描述性文本
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 18),
+              child: StartButton(
+                text: 'START',
+                onTap: () {
+                  // 在这里实现按钮按下后的逻辑
+                  print('Button pressed');
+                },
+                buttonColor: colorScheme.primary,
+                selectedTime: _selectedTime, // 传递选定的时间到 StartButton
+              ),
+            ),
           ],
-        ),
-        Padding(
-          padding: EdgeInsets.only(bottom: 9),
-          child: const TextWidget(text: 'HappyTomato'),
-        ),
-        Container(
-          height: 350,
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: TomatoClock(
-            onTimeSelected: (String time) {
-              setState(() {
-                _selectedTime = time; // 更新选定的时间
-              });
-            },
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(
-              top: 20, bottom: 29),
-          child: SwitchWithText(
-            initialValue: false, // 开关的初始状态
-            onChanged: (bool value) {
-              print("Switch is: ${value ? 'ON' : 'OFF'}");
-            },
-            text: 'Emotion Analysis', // 描述性文本
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 18),
-          child: StartButton(
-            text: 'START',
-            onTap: () {
-              // 在这里实现按钮按下后的逻辑
-              print('Button pressed');
-            },
-            buttonColor: colorScheme.primary,
-            selectedTime: _selectedTime, // 传递选定的时间到 StartButton
-          ),
-        ),
-      ],
-    );
-  }
+        );
+      },
+    ),
+    floatingActionButton: IntroStepBuilder(
+      order: 1,
+      text: 'OK, let\'s start.',
+      builder: (context, key) => FloatingActionButton(
+        key: key,
+        child: const Icon(Icons.play_arrow),
+        onPressed: () {
+          Intro.of(context).start(); // Trigger the intro to start
+        },
+      ),
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop, // 修改按钮位置为屏幕底部中间
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -461,11 +492,11 @@ class ModelProvider with ChangeNotifier {
   Future<void> loadModel() async {
     // 加载模型
     emotionModel = await FlutterPytorch.loadClassificationModel(
-    "assets/models/model_best.pt",
-    48, // 模型预期的输入图像的宽度
-    48, // 模型预期的输入图像的高度
-    labelPath: "assets/labels/labels.txt" // 如果您的模型需要标签文件，提供标签文件的路径
-  );
+        "assets/models/model_best.pt",
+        48, // 模型预期的输入图像的宽度
+        48, // 模型预期的输入图像的高度
+        labelPath: "assets/labels/labels.txt" // 如果您的模型需要标签文件，提供标签文件的路径
+        );
     isModelLoaded = true;
     print('Model loaded successfully.');
     notifyListeners(); // 通知监听器模型已加载

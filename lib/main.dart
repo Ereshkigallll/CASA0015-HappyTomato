@@ -44,7 +44,7 @@ Future<void> main() async {
     maskColor: const Color.fromRGBO(0, 0, 0, .6),
     noAnimation: false,
     maskClosable: false,
-    buttonTextBuilder: (order) => order == 3 ? 'Custom Button Text' : 'Next',
+    buttonTextBuilder: (order) => order == 5 ? 'Finish' : 'Next',
     child: MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -67,6 +67,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _selectedTime = "00:00"; // 用于保存从 TomatoClock 选择的时间
   int _selectedIndex = 0;
   GlobalKey _tomatoClockKey = GlobalKey();
+  bool isButtonVisible = true; // 控制按钮显示的状态
 
   @override
   void initState() {
@@ -103,102 +104,126 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
-Widget buildMainContent() {
-  Intro intro = Intro.of(context);
-  final screenWidth = MediaQuery.of(context).size.width;
-  final screenHeight = MediaQuery.of(context).size.height;
-  final double horizontalPadding = (screenWidth * 0.01).round().toDouble();
-  final colorScheme = Theme.of(context).colorScheme;
+  Widget buildMainContent() {
+    Intro intro = Intro.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final double horizontalPadding = (screenWidth * 0.01).round().toDouble();
+    final colorScheme = Theme.of(context).colorScheme;
 
-  // 使用 Scaffold 组织主界面内容和 FloatingActionButton
-  return Scaffold(
-    appBar: AppBar(
-      leading: Padding(
-        padding: EdgeInsets.only(left: horizontalPadding),
-        child: IconButton(
-          icon: SvgPicture.asset(
-            'assets/icons/landscape.svg',
-            colorFilter: const ColorFilter.mode(
-                Color(0xFF4F989E), BlendMode.srcIn),
-            height: 35.0,
-            width: 35.0,
+    // 使用 Scaffold 组织主界面内容和 FloatingActionButton
+    return Scaffold(
+      appBar: AppBar(
+        leading: Padding(
+          padding: EdgeInsets.only(left: horizontalPadding),
+          child: IconButton(
+            icon: SvgPicture.asset(
+              'assets/icons/landscape.svg',
+              colorFilter:
+                  const ColorFilter.mode(Color(0xFF4F989E), BlendMode.srcIn),
+              height: 35.0,
+              width: 35.0,
+            ),
+            onPressed: () {
+              // Landscape icon 的 onPressed 逻辑
+            },
           ),
-          onPressed: () {
-            // Landscape icon 的 onPressed 逻辑
-          },
         ),
+        actions: <Widget>[
+          AppBarIcons(horizontalPadding: 1 * horizontalPadding),
+        ],
       ),
-      actions: <Widget>[
-        AppBarIcons(horizontalPadding: 1 * horizontalPadding),
-      ],
-    ),
-    body: ValueListenableBuilder(
-      valueListenable: intro.statusNotifier,
-      builder: (context, value, child) {
-        return Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(bottom: 9),
-              child: const TextWidget(text: 'HappyTomato'),
-            ),
-            IntroStepBuilder(
-              order: 2,
-              text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
-              builder: (context, key) {
-                return Container(
-                  key: key, // 将 IntroStepBuilder 的 key 传递给 Container
-                  height: 350,
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  child: TomatoClock(
-                    onTimeSelected: (String time) {
-                      setState(() {
-                        _selectedTime = time; // 更新选定的时间
-                      });
-                    },
-                  ),
-                );
-              },
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20, bottom: 29),
-              child: SwitchWithText(
-                initialValue: false, // 开关的初始状态
-                onChanged: (bool value) {
-                  print("Switch is: ${value ? 'ON' : 'OFF'}");
+      body: ValueListenableBuilder(
+        valueListenable: intro.statusNotifier,
+        builder: (context, value, child) {
+          return Column(
+            children: <Widget>[
+              IntroStepBuilder(
+                  order: 2,
+                  text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+                  builder: (context, key) {
+                    return Padding(
+                      key: key,
+                      padding: EdgeInsets.only(bottom: 9),
+                      child: const TextWidget(text: 'HappyTomato'),
+                    );
+                  }),
+              IntroStepBuilder(
+                order: 3,
+                text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+                builder: (context, key) {
+                  return Container(
+                    key: key, // 将 IntroStepBuilder 的 key 传递给 Container
+                    height: 350,
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    child: TomatoClock(
+                      onTimeSelected: (String time) {
+                        setState(() {
+                          _selectedTime = time; // 更新选定的时间
+                        });
+                      },
+                    ),
+                  );
                 },
-                text: 'Emotion Analysis', // 描述性文本
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 18),
-              child: StartButton(
-                text: 'START',
-                onTap: () {
-                  // 在这里实现按钮按下后的逻辑
-                  print('Button pressed');
-                },
-                buttonColor: colorScheme.primary,
-                selectedTime: _selectedTime, // 传递选定的时间到 StartButton
-              ),
-            ),
-          ],
-        );
-      },
-    ),
-    floatingActionButton: IntroStepBuilder(
-      order: 1,
-      text: 'OK, let\'s start.',
-      builder: (context, key) => FloatingActionButton(
-        key: key,
-        child: const Icon(Icons.play_arrow),
-        onPressed: () {
-          Intro.of(context).start(); // Trigger the intro to start
+              IntroStepBuilder(
+                  order: 4,
+                  text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+                  builder: (context, key) {
+                    return Padding(
+                      key: key,
+                      padding: EdgeInsets.only(top: 20, bottom: 29),
+                      child: SwitchWithText(
+                        initialValue: false, // 开关的初始状态
+                        onChanged: (bool value) {
+                          print("Switch is: ${value ? 'ON' : 'OFF'}");
+                        },
+                        text: 'Emotion Analysis', // 描述性文本
+                      ),
+                    );
+                  }),
+              IntroStepBuilder(
+                  order: 5,
+                  text: '这是你设置番茄时间的地方，选好时间后可以开始专注工作！',
+                  builder: (context, key) {
+                    return Padding(
+                      key: key,
+                      padding: EdgeInsets.only(top: 18),
+                      child: StartButton(
+                        text: 'START',
+                        onTap: () {
+                          // 在这里实现按钮按下后的逻辑
+                          print('Button pressed');
+                        },
+                        buttonColor: colorScheme.primary,
+                        selectedTime: _selectedTime, // 传递选定的时间到 StartButton
+                      ),
+                    );
+                  }),
+            ],
+          );
         },
       ),
-    ),
-    floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop, // 修改按钮位置为屏幕底部中间
-  );
-}
+      floatingActionButton: isButtonVisible
+          ? IntroStepBuilder(
+              order: 1,
+              text: 'OK, let\'s start.',
+              builder: (context, key) => FloatingActionButton(
+                key: key,
+                child: const Icon(Icons.play_arrow),
+                onPressed: () {
+                  Intro.of(context).start(); // 触发引导开始
+                  setState(() {
+                    isButtonVisible = false; // 隐藏按钮
+                  });
+                },
+              ),
+            )
+          : null,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniEndTop, // 修改按钮位置为屏幕底部中间
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

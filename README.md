@@ -1,6 +1,6 @@
-# testapp
+# HappyTomato
 
-A new Flutter project.
+It's a mobile app that helps you analyse your emotions while focusing on your work, study or doing anything.
 
 ## Getting Started
 

@@ -421,10 +421,10 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
       }
 
       setState(() {
-        averageYearlyMinutes = (totalMinutes / uniqueYears.length);
-        averageMonthlyMinutes = totalMinutes / uniqueMonths.length;
-        averageWeeklyMinutes = totalMinutes / uniqueWeeks.length;
-        averageDailyMinutes = totalMinutes / uniqueDays.length;
+        averageYearlyMinutes = (totalMinutes / uniqueYears.length / 60);
+        averageMonthlyMinutes = totalMinutes / uniqueMonths.length /60 ;
+        averageWeeklyMinutes = totalMinutes / uniqueWeeks.length / 60;
+        averageDailyMinutes = totalMinutes / uniqueDays.length /60;
 
         yearlyRecordCount = yearlyRecords.values.fold(0, (a, b) => a + b);
         monthlyRecordCount = monthlyRecords.values.fold(0, (a, b) => a + b);

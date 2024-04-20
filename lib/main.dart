@@ -25,7 +25,7 @@ Future<void> main() async {
 
   final prefs = await SharedPreferences.getInstance();
   final selectedThemeIndex =
-      prefs.getInt('selectedThemeIndex') ?? 1; // 默认使用系统主题
+      prefs.getInt('selectedThemeIndex') ?? 1; // Light theme by default
 
   ThemeMode initialThemeMode = ThemeMode.system; // 默认为系统主题
   ThemeData initialThemeData = ThemeData.light(); // 默认主题数据

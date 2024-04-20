@@ -8,10 +8,6 @@ import 'package:intl/intl.dart';
 class dataPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final double horizontalPadding = screenWidth * 0.01;
-    final double verticalPadding = screenHeight * 0.01;
     return Scaffold(
       body: Column(
         children: [
@@ -27,9 +23,7 @@ class dataPage extends StatelessWidget {
 class TitleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final double horizontalPadding = screenWidth * 0.01;
     final double verticalPadding = screenHeight * 0.01;
     return Padding(
       padding: EdgeInsets.only(top: 8 * verticalPadding),
@@ -80,7 +74,6 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
     DateTime startOfCurrentMonth = DateTime(now.year, now.month);
     DateTime startOfCurrentWeek =
         DateTime(now.year, now.month, now.day - (now.weekday - 1));
-    DateTime startOfToday = DateTime(now.year, now.month, now.day);
 
     ref.onValue.listen((DatabaseEvent event) {
       final data = event.snapshot.value as Map<dynamic, dynamic>?;
@@ -157,10 +150,10 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
     return Container(
       width: screenWidth * 0.9,
       height: screenHeight * 0.32,
-      padding: EdgeInsets.all(10.0),
-      margin: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(10.0),
+      margin: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Color(0xFFECE3DF),
+        color: const Color(0xFFECE3DF),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -172,7 +165,7 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
                   isSwitched
                       ? 'Total Tomatoes'
                       : 'Total Focus Time', // 根据 isSwitched 显示不同的文本
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xffEF7453),
                     fontSize: 22,
                     fontFamily: 'Inter-Display',
@@ -180,16 +173,11 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
                   )),
               AnimatedToggleSwitch<bool>.size(
                 current: isSwitched,
-                values: [false, true],
+                values: const [false, true],
                 onChanged: (value) {
                   setState(() {
                     isSwitched = value;
                   });
-                  if (value) {
-                    print("tomato"); // 当开关切换到 true 时打印 "tomato"
-                  } else {
-                    print("time"); // 当开关切换到 false 时打印 "time"
-                  }
                 },
                 iconBuilder: (value) => value
                     ? SvgPicture.asset(
@@ -202,14 +190,14 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
                         width: 16, // 设置图标的适当尺寸
                         height: 16,
                       ),
-                animationDuration: Duration(milliseconds: 500),
+                animationDuration: const Duration(milliseconds: 500),
                 animationCurve: Curves.easeInOutCirc,
-                indicatorSize: Size.fromWidth(48.0),
+                indicatorSize: const Size.fromWidth(48.0),
                 height: 30.0,
                 borderWidth: 2.0,
                 style: ToggleStyle(
-                  backgroundColor: Color(0xffBFD8D4),
-                  indicatorColor: Color(0xff5A9DA3),
+                  backgroundColor: const Color(0xffBFD8D4),
+                  indicatorColor: const Color(0xff5A9DA3),
                   borderRadius: BorderRadius.circular(25.0),
                   indicatorBorderRadius: BorderRadius.circular(25.0),
                   borderColor: Colors.transparent,
@@ -217,7 +205,7 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
               ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Expanded(
             child: Column(
               children: [
@@ -239,7 +227,7 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
                         screenHeight * 0.1),
                   ],
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -269,9 +257,9 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
     return Container(
       width: width,
       height: height,
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Color(0xFF5A9DA3),
+        color: const Color(0xFF5A9DA3),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Align(
@@ -282,26 +270,26 @@ class _FocusTimeCardState extends State<FocusTimeCard> {
           children: <Widget>[
             Text(
               period,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 14,
                   fontFamily: 'Inter-Display',
                   fontWeight: FontWeight.w800,
                   color: Color(0xffFFF5F1)),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic, // 确保文本基线对齐
               children: [
                 Text(time,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 22,
                       fontFamily: 'Inter-Display',
                       fontWeight: FontWeight.w800,
                       color: Color(0xffFFF5F1),
                     )),
                 !isSwitched
-                    ? Text(" Mins",
+                    ? const Text(" Mins",
                         style: TextStyle(
                           fontSize: 14,
                           fontFamily: 'Inter-Display',
@@ -364,12 +352,6 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
         databaseURL:
             'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
     DatabaseReference ref = database.ref('countdowns');
-
-    DateTime now = DateTime.now();
-    DateTime startOfCurrentMonth = DateTime(now.year, now.month);
-    DateTime startOfCurrentWeek =
-        DateTime(now.year, now.month, now.day - (now.weekday - 1));
-    DateTime startOfToday = DateTime(now.year, now.month, now.day);
 
     ref.onValue.listen((DatabaseEvent event) {
       final data = event.snapshot.value as Map<dynamic, dynamic>?;
@@ -448,7 +430,7 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
     return Container(
       width: screenWidth * 0.9,
       height: screenHeight * 0.32,
-      padding: EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(10.0),
       margin: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Color(0xFFECE3DF),
@@ -463,7 +445,7 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
                   isSwitched
                       ? 'Average Tomatoes'
                       : 'Average Focus Time', // 根据 isSwitched 显示不同的文本
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xffEF7453),
                     fontSize: 22,
                     fontFamily: 'Inter-Display',
@@ -471,7 +453,7 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
                   )),
               AnimatedToggleSwitch<bool>.size(
                 current: isSwitched,
-                values: [false, true],
+                values: const [false, true],
                 onChanged: (value) {
                   setState(() {
                     isSwitched = value;
@@ -493,14 +475,14 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
                         width: 16, // 设置图标的适当尺寸
                         height: 16,
                       ),
-                animationDuration: Duration(milliseconds: 500),
+                animationDuration: const Duration(milliseconds: 500),
                 animationCurve: Curves.easeInOutCirc,
-                indicatorSize: Size.fromWidth(48.0),
+                indicatorSize: const Size.fromWidth(48.0),
                 height: 30.0,
                 borderWidth: 2.0,
                 style: ToggleStyle(
-                  backgroundColor: Color(0xffBFD8D4),
-                  indicatorColor: Color(0xff5A9DA3),
+                  backgroundColor: const Color(0xffBFD8D4),
+                  indicatorColor: const Color(0xff5A9DA3),
                   borderRadius: BorderRadius.circular(25.0),
                   indicatorBorderRadius: BorderRadius.circular(25.0),
                   borderColor: Colors.transparent,
@@ -508,7 +490,7 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
               ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Expanded(
             child: Column(
               children: [
@@ -566,9 +548,9 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
     return Container(
       width: width,
       height: height,
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Color(0xFF5A9DA3),
+        color: const Color(0xFF5A9DA3),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Align(
@@ -579,26 +561,26 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
           children: <Widget>[
             Text(
               period,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 14,
                   fontFamily: 'Inter-Display',
                   fontWeight: FontWeight.w800,
                   color: Color(0xffFFF5F1)),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic, // 确保文本基线对齐
               children: [
                 Text(time,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 22,
                       fontFamily: 'Inter-Display',
                       fontWeight: FontWeight.w800,
                       color: Color(0xffFFF5F1),
                     )),
                 !isSwitched
-                    ? Text(" Mins",
+                    ? const Text(" Mins",
                         style: TextStyle(
                           fontSize: 14,
                           fontFamily: 'Inter-Display',

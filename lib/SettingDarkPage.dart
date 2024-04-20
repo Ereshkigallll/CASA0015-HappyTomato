@@ -99,7 +99,7 @@ class _SettingDarkPageState extends State<SettingDarkPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text("Theme changed to $text"),
-                  duration: Duration(seconds: 2),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             }

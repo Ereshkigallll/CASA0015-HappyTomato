@@ -44,7 +44,7 @@ class SettingsPage extends StatelessWidget {
                     text: 'Theme Mode',
                     onPressed: () {
                       Navigator.of(context)
-                          .push(_createRoute(SettingDarkPage()));
+                          .push(_createRoute(const SettingDarkPage()));
                     }),
               ),
               SizedBox(height: 2 * verticalPadding),
@@ -52,7 +52,7 @@ class SettingsPage extends StatelessWidget {
                 child: CustomButton(
                     text: 'Expression Analysis',
                     onPressed: () {
-                      Navigator.of(context).push(_createRoute(SettingEAPage()));
+                      Navigator.of(context).push(_createRoute(const SettingEAPage()));
                     }),
               ),
               SizedBox(height: 2 * verticalPadding),
@@ -60,12 +60,12 @@ class SettingsPage extends StatelessWidget {
                 child: CustomButton(
                     text: 'Data Analysis',
                     onPressed: () {
-                      Navigator.of(context).push(_createRoute(SettingDataPage()));
+                      Navigator.of(context).push(_createRoute(const SettingDataPage()));
                     }),
               ),
               SizedBox(height: 2 * verticalPadding),
               Center(
-                child: CustomButton(text: 'Help', onPressed: () {Navigator.of(context).push(_createRoute(SettingHelpPage()));}),
+                child: CustomButton(text: 'Help', onPressed: () {Navigator.of(context).push(_createRoute(const SettingHelpPage()));}),
               ),
             ],
           ),

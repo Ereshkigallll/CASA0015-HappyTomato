@@ -33,23 +33,23 @@ class ThemeNotifier with ChangeNotifier {
             surface: Color(0xFFFFF5F1), // 表面色，如卡片、对话框背景
             onPrimary: Colors.white, // 用于在主色上的文本颜色
           ),
-          scaffoldBackgroundColor: Color(0xFFFFF5F1), // 设置脚手架背景色
-          appBarTheme: AppBarTheme(
+          scaffoldBackgroundColor: const Color(0xFFFFF5F1), // 设置脚手架背景色
+          appBarTheme: const AppBarTheme(
             color: Color(0xFFFFF5F1), // 设置应用栏颜色
           ),
         );
         break;
       case ThemeMode.dark:
         _themeData = ThemeData.dark().copyWith(
-          colorScheme: ColorScheme.dark(
+          colorScheme: const ColorScheme.dark(
             primary: Color(0xFF4F989E), // 主按钮和组件颜色
             secondary: Color(0xFF4F989E), // 次要颜色或其他交互元素颜色
             background: Color(0xFF1A1A1A), // 背景色
             surface: Color(0xFF1A1A1A), // 表面色
             onPrimary: Colors.white, // 用于在主色上的文本颜色
           ),
-          scaffoldBackgroundColor: Color(0xFF1A1A1A), // 设置脚手架背景色
-          appBarTheme: AppBarTheme(
+          scaffoldBackgroundColor: const Color(0xFF1A1A1A), // 设置脚手架背景色
+          appBarTheme: const AppBarTheme(
             color: Color(0xFF1A1A1A), // 设置应用栏颜色
           ),
         );

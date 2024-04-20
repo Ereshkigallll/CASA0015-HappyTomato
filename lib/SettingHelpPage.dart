@@ -44,7 +44,7 @@ class SettingHelpPage extends StatelessWidget {
               ),
               SizedBox(height: 2 * verticalPadding),
               Container(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                     vertical: 10, horizontal: 20), // 根据需要调整内部间距
                 alignment: Alignment.center,
                 child: Text(
@@ -65,7 +65,7 @@ class SettingHelpPage extends StatelessWidget {
               ),
               SizedBox(height: 2 * verticalPadding),
               Container(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // 根据需要调整内部间距
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20), // 根据需要调整内部间距
             alignment: Alignment.center,
               child: Text(
                 'Explore my personal website for more projects and contact information.',

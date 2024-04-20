@@ -6,7 +6,6 @@ import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'dart:typed_data';
@@ -97,7 +96,7 @@ class _CountdownPageState extends State<CountdownPage> {
         return WillPopScope(
           onWillPop: () async => false, // 禁止通过返回按钮关闭弹窗
           child: AlertDialog(
-            title: Text('请确认自己的脸在预览窗口中'),
+            title: const Text('Make sure your face is in the centre of the preview window'),
             content: FutureBuilder<void>(
               future: _initializeControllerFuture,
               builder: (context, snapshot) {
@@ -108,13 +107,13 @@ class _CountdownPageState extends State<CountdownPage> {
                     child: CameraPreview(_controller!),
                   );
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
               },
             ),
             actions: <Widget>[
               TextButton(
-                child: Text('Confirm'),
+                child: const Text('Confirm'),
                 onPressed: () {
                   Navigator.of(context).pop(); // 关闭弹窗
                   setState(() {
@@ -339,7 +338,7 @@ class _RemainingTimeDisplayWidgetState
                     // 使用Center小部件使按钮居中
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        backgroundColor: Color(0xFF4F989E),
+                        backgroundColor:  const Color(0xFF4F989E),
                       ),
                       child: const Text(
                         'Take the Tomato',
@@ -369,7 +368,7 @@ class _RemainingTimeDisplayWidgetState
     });
     // 如果提供了摄像头控制器，则每10秒拍摄一次
     if (widget.cameraController != null) {
-      _photoTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+      _photoTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
         // 检查 CameraController 是否已经被销毁
         if (!_isControllerDisposed &&
             widget.cameraController != null &&
@@ -391,7 +390,6 @@ class _RemainingTimeDisplayWidgetState
     if (originalImage != null) {
       // 逆时针旋转 90 度，注意：这里需要设置正确的旋转角度
       img.Image rotatedImage = img.copyRotate(originalImage, angle: 0);
-      print('图像旋转完成');
 
       // 计算裁剪尺寸和开始点，以实现中心裁剪为 1:1 长宽比
       int size = min(rotatedImage.width, rotatedImage.height);
@@ -401,20 +399,13 @@ class _RemainingTimeDisplayWidgetState
       // 中心裁剪为 1:1 长宽比
       img.Image croppedImage = img.copyCrop(rotatedImage,
           x: startX, y: startY, width: size, height: size);
-      print('图像裁剪完成');
 
       // 调整图像尺寸为 48x48
       img.Image resizedImage =
           img.copyResize(croppedImage, width: 48, height: 48);
-      print('图像尺寸调整完成');
 
       // 将裁剪后的图像编码为 JPG
       Uint8List jpg = img.encodeJpg(resizedImage);
-      print('图像编码为 JPG 完成');
-      print(jpg);
-
-      final mean = [0.485, 0.456, 0.406];
-      final std = [0.229, 0.224, 0.225];
 
 if (widget.model != null) {
   final tempDir = await getTemporaryDirectory();
@@ -422,15 +413,11 @@ if (widget.model != null) {
     ..writeAsBytesSync(jpg);
 
   if (!tempImageFile.existsSync()) {
-    print('临时图像文件不存在');
     return;
   }
 
-  print('处理后的图像写入临时文件完成，文件路径: ${tempImageFile.path}');
-
   try {
     Uint8List imageBytes = await tempImageFile.readAsBytes();
-    print('开始情感识别...');
 
     // 假设类别的顺序是: angry, disgust, fear, happy, neutral, sad, surprise
     List<double?>? predictionList =
@@ -439,9 +426,6 @@ if (widget.model != null) {
       // 获取happy和sad的预测概率
       double happyProbability = predictionList[2] ?? 0; // happy的索引为3
       double sadProbability = predictionList[5] ?? 0;   // sad的索引为5
-
-      print('happy的预测概率: $happyProbability');
-      print('sad的预测概率: $sadProbability');
 
       // 如果sad的概率高于happy，更新unhappyPhotos计数器
       if (sadProbability > happyProbability) {
@@ -454,9 +438,6 @@ if (widget.model != null) {
       unhappyPercentage = (_unhappyPhotos / _totalPhotos) * 100;
       // 计算开心的百分比
       happyPercentage = 100 - unhappyPercentage;
-
-      print('不开心的百分比: $unhappyPercentage%');
-      print('开心的百分比: $happyPercentage%');
     } else {
       print('预测列表长度不足以提供happy和sad的概率');
     }

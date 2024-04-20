@@ -176,8 +176,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       padding: const EdgeInsets.only(top: 20, bottom: 29),
                       child: SwitchWithText(
                         initialValue: false, // 开关的初始状态
-                        onChanged: (bool value) {
-                        },
+                        onChanged: (bool value) {},
                         text: 'Emotion Analysis', // 描述性文本
                       ),
                     );
@@ -192,10 +191,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       padding: const EdgeInsets.only(top: 18),
                       child: StartButton(
                         text: 'START',
-                        onTap: () {
-                          // 在这里实现按钮按下后的逻辑
-                          print('Button pressed');
-                        },
+                        onTap: () {},
                         buttonColor: colorScheme.primary,
                         selectedTime: _selectedTime, // 传递选定的时间到 StartButton
                       ),
@@ -206,35 +202,44 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         },
       ),
       floatingActionButton: isButtonVisible
-    ? IntroStepBuilder(
-        order: 1,
-        text: 'Let\'s start a short introduction to this app!',
-        builder: (context, key) => ElevatedButton(
-          key: key,
-          onPressed: () {
-            Intro.of(context).start(); // 触发引导开始
-            setState(() {
-              isButtonVisible = false; // 隐藏按钮
-            });
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xffEF7453),// 按钮背景颜色
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18.0), // 圆角
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12), // 内边距
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min, // 控制Row占据最小可能空间
-            children: [
-              Icon(Icons.play_arrow,color: Color(0xFFFFF5F1), ), // 图标
-              SizedBox(width: 10), // 图标和文字之间的间隔
-              Text('Start A Introduction of the App First', style: TextStyle(color: Color(0xFFFFF5F1), fontSize: 16, fontFamily: 'Inter-Display', fontWeight: FontWeight.w800)), // 文字及其样式, // 文字及其样式
-            ],
-          ),
-        ),
-      )
-    : null,
+          ? IntroStepBuilder(
+              order: 1,
+              text: 'Let\'s start a short introduction to this app!',
+              builder: (context, key) => ElevatedButton(
+                key: key,
+                onPressed: () {
+                  Intro.of(context).start(); // 触发引导开始
+                  setState(() {
+                    isButtonVisible = false; // 隐藏按钮
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xffEF7453), // 按钮背景颜色
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0), // 圆角
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 12), // 内边距
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min, // 控制Row占据最小可能空间
+                  children: [
+                    Icon(
+                      Icons.play_arrow,
+                      color: Color(0xFFFFF5F1),
+                    ), // 图标
+                    SizedBox(width: 10), // 图标和文字之间的间隔
+                    Text('Start A Introduction of the App First',
+                        style: TextStyle(
+                            color: Color(0xFFFFF5F1),
+                            fontSize: 16,
+                            fontFamily: 'Inter-Display',
+                            fontWeight: FontWeight.w800)), // 文字及其样式, // 文字及其样式
+                  ],
+                ),
+              ),
+            )
+          : null,
 
       floatingActionButtonLocation:
           FloatingActionButtonLocation.startTop, // 修改按钮位置为屏幕底部中间
@@ -736,12 +741,15 @@ class StartButton extends StatelessWidget {
           databaseURL:
               'https://happytomato-591f9-default-rtdb.europe-west1.firebasedatabase.app');
       DatabaseReference databaseReference = database.reference();
-      databaseReference.child("countdowns").push().set({
-        'selectedTime': time,
-        'timestamp': DateTime.now().toIso8601String(),
-      }).then((_) {
-      }).catchError((error) {
-      });
+      databaseReference
+          .child("countdowns")
+          .push()
+          .set({
+            'selectedTime': time,
+            'timestamp': DateTime.now().toIso8601String(),
+          })
+          .then((_) {})
+          .catchError((error) {});
     }
   }
 }

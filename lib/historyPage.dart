@@ -12,9 +12,7 @@ class HistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DatabaseReference databaseReference = database.ref().child("countdowns");
-    final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final double horizontalPadding = screenWidth * 0.01;
     final double verticalPadding = screenHeight * 0.01;
 
     return Scaffold(
@@ -24,7 +22,7 @@ class HistoryPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text('数据加载出错'));
+            return const Center(child: Text('Data Loading Fail'));
           } else if (snapshot.hasData && snapshot.data!.value != null) {
             Map<String, dynamic> data =
                 Map<String, dynamic>.from(snapshot.data!.value as Map);
@@ -53,7 +51,7 @@ class HistoryPage extends StatelessWidget {
               ),
             );
           } else {
-            return Center(child: Text('没有数据'));
+            return Center(child: Text('No Data Found'));
           }
         },
       ),

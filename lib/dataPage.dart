@@ -431,9 +431,9 @@ class _AverageTimeCardState extends State<AverageTimeCard> {
       width: screenWidth * 0.9,
       height: screenHeight * 0.32,
       padding: const EdgeInsets.all(10.0),
-      margin: EdgeInsets.all(16.0),
+      margin: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Color(0xFFECE3DF),
+        color: const Color(0xFFECE3DF),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(

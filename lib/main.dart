@@ -67,11 +67,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   String _selectedTime = "00:00"; // 用于保存从 TomatoClock 选择的时间
   int _selectedIndex = 0;
   bool isButtonVisible = true; // 控制按钮显示的状态
+  bool _hasSeenIntro = false; // 标志用户是否已经看过引导
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _checkIntroSeen();
+  }
+
+  void _checkIntroSeen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasSeenIntro = prefs.getBool('hasSeenIntro') ?? false;
+    setState(() {
+      _hasSeenIntro = hasSeenIntro;
+    });
+  }
+
+  void _markIntroAsSeen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenIntro', true);
+    setState(() {
+      isButtonVisible = false; // 隐藏按钮
+    });
   }
 
   @override
@@ -201,14 +219,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           );
         },
       ),
-      floatingActionButton: isButtonVisible
+      floatingActionButton: !_hasSeenIntro && isButtonVisible
           ? IntroStepBuilder(
               order: 1,
               text: 'Let\'s start a short introduction to this app!',
               builder: (context, key) => ElevatedButton(
                 key: key,
                 onPressed: () {
-                  Intro.of(context).start(); // 触发引导开始
+                  Intro.of(context).start();
+                  _markIntroAsSeen(); // 触发引导开始
                   setState(() {
                     isButtonVisible = false; // 隐藏按钮
                   });

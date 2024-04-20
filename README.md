@@ -2,15 +2,8 @@
 
 It's a mobile app that helps you analyse your emotions while focusing on your work, study or doing anything.
 
-## Getting Started
+## 1. Introduction
 
-This project is a starting point for a Flutter application.
+HappyTomato is a mobile application that provides mood analysis while you work or study, using a locally deployed facial recognition model. You simply need to set your desired work duration, place your phone in a position that can capture your face, and press the start button. During the set time, HappyTomato will continuously analyse your expressions and upload the proportion of happy expressions along with the focus duration to a Firebase database. By clicking the history icon in the floating dock at the bottom of the screen, you can view your past focus records and mood analyses. Clicking on the data analysis icon will show you data analysis of your focus times. Moreover, in the settings page, you can adjust the application’s theme colour and set whether core features are enabled or disabled by default. It is hoped that HappyTomato will help you lead a healthier life!
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 2. Highlights

@@ -202,8 +202,8 @@ class DataCard extends StatelessWidget {
     }
 
     double happinessValue = double.parse(happiness.replaceAll('%', ''));
-    if (happinessValue >= 0 && happinessValue <= 25) {
-      return 'assets/icons/nothappy.svg'; // 假设sad.svg是0-25%的图标
+    if (happinessValue >= -1 && happinessValue <= 25) {
+      return 'assets/icons/notHappy.svg'; // 假设sad.svg是0-25%的图标
     } else if (happinessValue <= 50) {
       return 'assets/icons/notnothappy.svg'; // 假设lessHappy.svg是26-50%的图标
     } else if (happinessValue <= 75) {
